@@ -12,7 +12,7 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
 import { auth } from "../../../lib/firebase";
 
@@ -90,8 +90,7 @@ export default function Login() {
     const provider = new GoogleAuthProvider();
 
     try {
-      const result = await signInWithPopup(auth, provider);
-      console.log("Google Sign-In successful:", result.user);
+      await signInWithPopup(auth, provider);
       router.push("/dashboard");
     } catch (error: any) {
       console.error("Google Sign-In Error:", error);
@@ -225,7 +224,10 @@ export default function Login() {
                 or
                 <div className="border-b-1 w-[50%] border-gray-300 mx-3"></div>
               </div>
-              <div onClick={handleSignInWithGoogle} className="flex justify-center items-center gap-4 border-1 py-1 rounded-lg border-gray-200 cursor-pointer hover:bg-gray-200">
+              <div
+                onClick={handleSignInWithGoogle}
+                className="flex justify-center items-center gap-4 border-1 py-1 rounded-lg border-gray-200 cursor-pointer hover:bg-gray-200"
+              >
                 <div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
