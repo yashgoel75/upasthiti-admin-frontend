@@ -1,5 +1,7 @@
 export default function Account() {
-    return (
-        <></>
-    )
+  return (
+    <>
+      <div className="flex justify-center items-center">This is settings!</div>
+    </>
+  );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -17,21 +17,42 @@ import {
 import logo from "../../public/assets/upasthiti-logo.png";
 import { getAuth, signOut } from "firebase/auth";
 import "../page.css";
+import {
+  onAuthStateChanged,
+  User,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
+import { auth } from "../../lib/firebase";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
+      if (!user) {
+        router.replace("/auth/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const router = useRouter();
-    const pathname = usePathname();
+  const pathname = usePathname();
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", route: "/admin/dashboard" },
     { icon: BarChart3, label: "Analytics", route: "/admin/analytics" },
     { icon: Users, label: "Teacher Details", route: "/admin/teachers" },
-    { icon: GraduationCap, label: "Students Details", route: "/admin/students" },
+    {
+      icon: GraduationCap,
+      label: "Students Details",
+      route: "/admin/students",
+    },
     { icon: Calendar, label: "Time Table", route: "/admin/timetable" },
     { icon: Settings, label: "Settings", route: "/admin/settings" },
   ];
