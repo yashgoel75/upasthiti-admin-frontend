@@ -160,8 +160,14 @@ export default function Dashboard() {
   };
 
   const facultyStats = [
-    { count: counts.facultyCounts.associateProfessor, label: "Associate Professor" },
-    { count: counts.facultyCounts.assistantProfessor, label: "Assistant Professor" },
+    {
+      count: counts.facultyCounts.associateProfessor,
+      label: "Associate Professor",
+    },
+    {
+      count: counts.facultyCounts.assistantProfessor,
+      label: "Assistant Professor",
+    },
     { count: counts.facultyCounts.labAssistant, label: "Lab Assistants" },
     { count: counts.studentCount, label: "Students" },
   ];
@@ -222,22 +228,44 @@ export default function Dashboard() {
           </div>
 
           <div className="text-center lg:text-left">
-            <h2 className="text-3xl font-bold">
-              {getGreeting()}, {adminData?.name}
-            </h2>
-            <p className="text-gray-600">{adminData?.school?.name}</p>
-            <div className="flex flex-wrap gap-4 mt-3 text-gray-700 text-sm">
-              <p>Admin ID: {adminData?.adminId}</p>
-              <p>Email: {adminData?.officialEmail}</p>
-              <p>Phone: {adminData?.phoneNumber}</p>
-            </div>
+            {adminData ? (
+              <>
+                <h2 className="text-3xl font-bold">
+                  {getGreeting()}, {adminData.name}
+                </h2>
+                <p className="text-gray-600">{adminData.school?.name}</p>
+                <div className="flex flex-wrap gap-4 mt-3 text-gray-700 text-sm">
+                  <p>
+                    <b>Admin ID:</b> {adminData.adminId}
+                  </p>
+                  <p>
+                    <b>Email:</b> {adminData.officialEmail}
+                  </p>
+                  <p>
+                    <b>Phone:</b> {adminData.phoneNumber}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="animate-pulse">
+                <div className="h-8 bg-gray-300 rounded w-3/4 mx-auto lg:mx-0 mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto lg:mx-0 mb-4"></div>
+                <div className="flex flex-wrap gap-4 mt-3 justify-center lg:justify-start">
+                  <div className="h-3 bg-gray-200 rounded w-32"></div>
+                  <div className="h-3 bg-gray-200 rounded w-40"></div>
+                  <div className="h-3 bg-gray-200 rounded w-28"></div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6 text-center">
           {facultyStats.map((s, i) => (
-            <div key={i} className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <div
+              key={i}
+              className="bg-gray-50 rounded-xl p-5 border border-gray-200"
+            >
               <p className="text-2xl font-bold text-gray-900">{s.count}</p>
               <p className="text-sm text-gray-600 mt-1">{s.label}</p>
             </div>
@@ -270,7 +298,8 @@ export default function Dashboard() {
 
       {/* Footer */}
       <footer className="text-center text-xs mt-8 text-gray-500">
-        © {new Date().getFullYear()} Vivekananda Institute of Professional Studies - Technical Campus.
+        © {new Date().getFullYear()} Vivekananda Institute of Professional
+        Studies - Technical Campus.
       </footer>
     </div>
   );

@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   X,
+  User as UserIcon
 } from "lucide-react";
 import logo from "../../public/assets/upasthiti-logo.png";
 import { getAuth, signOut } from "firebase/auth";
@@ -47,13 +48,14 @@ export default function AdminLayout({
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", route: "/admin/dashboard" },
     { icon: BarChart3, label: "Analytics", route: "/admin/analytics" },
-    { icon: Users, label: "Teacher Details", route: "/admin/teachers" },
+    { icon: Users, label: "Teachers Details", route: "/admin/teachers" },
     {
       icon: GraduationCap,
       label: "Students Details",
       route: "/admin/students",
     },
     { icon: Calendar, label: "Time Table", route: "/admin/timetable" },
+    { icon: UserIcon, label: "Account", route: "/admin/account" },
     { icon: Settings, label: "Settings", route: "/admin/settings" },
   ];
 
