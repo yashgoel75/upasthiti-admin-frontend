@@ -13,7 +13,7 @@ import {
   LogOut,
   Menu,
   X,
-  User as UserIcon
+  User as UserIcon,
 } from "lucide-react";
 import logo from "../../public/assets/upasthiti-logo.png";
 import { getAuth, signOut } from "firebase/auth";
@@ -32,7 +32,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
       if (!user) {
@@ -62,6 +62,7 @@ export default function AdminLayout({
   const handleLogout = async () => {
     try {
       await signOut(getAuth());
+      localStorage.clear();
       router.replace("/auth/login");
     } catch (err) {
       console.error("Logout error:", err);
@@ -113,7 +114,10 @@ export default function AdminLayout({
                 {menuItems.map((item) => (
                   <li
                     key={item.label}
-                    onClick={() => {router.push(item.route); setIsSidebarOpen(false)}}
+                    onClick={() => {
+                      router.push(item.route);
+                      setIsSidebarOpen(false);
+                    }}
                     className={`
                       px-4 py-2.5 rounded-lg font-medium cursor-pointer
                       flex items-center gap-3

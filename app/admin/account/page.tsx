@@ -30,15 +30,35 @@ export default function AccountPage() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
-      if (user?.uid) fetchUserDetails(user.uid);
+      if (user?.uid) {
+        const cachedAdmin = localStorage.getItem("adminData");
+        if (cachedAdmin) {
+          setAdminData(JSON.parse(cachedAdmin));
+        } else {
+          fetchUserDetails(user.uid);
+        }
+      }
     });
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const cachedAdmin = localStorage.getItem("adminData");
+    if (cachedAdmin) setAdminData(JSON.parse(cachedAdmin));
+  }, []);
+
+  useEffect(() => {
+    if (adminData) localStorage.setItem("adminData", JSON.stringify(adminData));
+  }, [adminData]);
+
   const fetchUserDetails = async (uid: string) => {
     try {
-      const res = await axios.get(`https://upasthiti-backend-production.up.railway.app/api/admin?uid=${uid}`);
-      setAdminData(res.data.data[0]);
+      const res = await axios.get(
+        `https://upasthiti-backend-production.up.railway.app/api/admin?uid=${uid}`
+      );
+      const data = res.data.data[0];
+      setAdminData(data);
+      localStorage.setItem("adminData", JSON.stringify(data));
     } catch (error) {
       console.error("Error fetching admin:", error);
     }

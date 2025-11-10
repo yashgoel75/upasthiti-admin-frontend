@@ -54,20 +54,40 @@ export default function Dashboard() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const branches = ["CSE", "AIML", "AIDS", "VLSI", "IIOT", "CSAM", "CSECS"];
+  const branches = ["CSE", "AIML", "AIDS", "VLSI", "IIOT", "CSAM", "CSE-CS"];
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
-      if (user?.uid) fetchUserDetails(user.uid);
+      if (user?.uid) {
+        const cachedAdmin = localStorage.getItem("adminData");
+        if (cachedAdmin) {
+          setAdminData(JSON.parse(cachedAdmin));
+        } else {
+          fetchUserDetails(user.uid);
+        }
+      }
     });
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const cachedAdmin = localStorage.getItem("adminData");
+    if (cachedAdmin) setAdminData(JSON.parse(cachedAdmin));
+  }, []);
+
+  useEffect(() => {
+    if (adminData) localStorage.setItem("adminData", JSON.stringify(adminData));
+  }, [adminData]);
+
   const fetchUserDetails = async (uid: string) => {
     try {
-      const res = await axios.get(`https://upasthiti-backend-production.up.railway.app/api/admin?uid=${uid}`);
-      setAdminData(res.data.data[0]);
+      const res = await axios.get(
+        `https://upasthiti-backend-production.up.railway.app/api/admin?uid=${uid}`
+      );
+      const data = res.data.data[0];
+      setAdminData(data);
+      localStorage.setItem("adminData", JSON.stringify(data));
     } catch (error) {
       console.error("Error fetching admin:", error);
     }
@@ -75,7 +95,9 @@ export default function Dashboard() {
 
   const getCount = async () => {
     try {
-      const res = await axios.get("https://upasthiti-backend-production.up.railway.app/api/count");
+      const res = await axios.get(
+        "https://upasthiti-backend-production.up.railway.app/api/count"
+      );
       const data = res.data;
 
       const branchCounts: BranchCounts = {};
@@ -143,10 +165,13 @@ export default function Dashboard() {
       const data = await uploadRes.json();
       const imageUrl = data.secure_url;
 
-      await axios.patch("https://upasthiti-backend-production.up.railway.app/api/admin/update", {
-        uid: user.uid,
-        updates: { profilePicture: imageUrl },
-      });
+      await axios.patch(
+        "https://upasthiti-backend-production.up.railway.app/api/admin/update",
+        {
+          uid: user.uid,
+          updates: { profilePicture: imageUrl },
+        }
+      );
 
       setAdminData((prev) =>
         prev ? { ...prev, profilePicture: imageUrl } : prev
