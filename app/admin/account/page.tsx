@@ -37,7 +37,7 @@ export default function AccountPage() {
 
   const fetchUserDetails = async (uid: string) => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/admin?uid=${uid}`);
+      const res = await axios.get(`https://upasthiti-backend-production.up.railway.app/api/admin?uid=${uid}`);
       setAdminData(res.data.data[0]);
     } catch (error) {
       console.error("Error fetching admin:", error);
@@ -75,7 +75,7 @@ export default function AccountPage() {
       const data = await uploadRes.json();
       const imageUrl = data.secure_url;
 
-      await axios.patch("http://localhost:8080/api/admin/update", {
+      await axios.patch("https://upasthiti-backend-production.up.railway.app/api/admin/update", {
         uid: user.uid,
         updates: { profilePicture: imageUrl },
       });
