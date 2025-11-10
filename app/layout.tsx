@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Upasthiti - AMR System of VIPS",
+  title: "Upasthiti - AMS System of VIPS",
   description: "",
 };
 
