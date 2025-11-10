@@ -56,15 +56,31 @@ export default function Dashboard() {
 
   const branches = ["CSE", "AIML", "AIDS", "VLSI", "IIOT", "CSAM", "CSE-CS"];
 
+  const CACHE_INTERVAL = 50000;
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       if (user?.uid) {
-        const cachedAdmin = localStorage.getItem("adminData");
-        if (cachedAdmin) {
-          setAdminData(JSON.parse(cachedAdmin));
+        const timeIn = localStorage.getItem("timeIn");
+        if (timeIn) {
+          const currentTime = Date.now();
+          if (currentTime - Number(timeIn) > CACHE_INTERVAL) {
+            fetchUserDetails(user.uid);
+          } else {
+            const cachedAdmin = localStorage.getItem("adminData");
+            if (cachedAdmin) {
+              setAdminData(JSON.parse(cachedAdmin));
+            } else {
+              fetchUserDetails(user.uid);
+            }
+          }
         } else {
-          fetchUserDetails(user.uid);
+          const cachedAdmin = localStorage.getItem("adminData");
+          if (cachedAdmin) {
+            setAdminData(JSON.parse(cachedAdmin));
+          } else {
+            fetchUserDetails(user.uid);
+          }
         }
       }
     });
@@ -77,7 +93,9 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (adminData) localStorage.setItem("adminData", JSON.stringify(adminData));
+    if (adminData) {
+      localStorage.setItem("adminData", JSON.stringify(adminData));
+    }
   }, [adminData]);
 
   const fetchUserDetails = async (uid: string) => {
@@ -88,6 +106,7 @@ export default function Dashboard() {
       const data = res.data.data[0];
       setAdminData(data);
       localStorage.setItem("adminData", JSON.stringify(data));
+      localStorage.setItem("timeIn", Date.now().toString());
     } catch (error) {
       console.error("Error fetching admin:", error);
     }
