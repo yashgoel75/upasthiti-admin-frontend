@@ -30,10 +30,10 @@ export default function Home() {
 
   return (
     <main className="main-container flex flex-col items-center justify-center min-h-screen p-4">
-      <span className="text-4xl dm-serif-display-regular-italic">
+      <span className="text-3xl md:text-4xl dm-serif-display-regular-italic">
         Welcome to
       </span>
-      <span className="custom-class text-[100px]">Upasthiti</span>
+      <span className="custom-class text-[70px] md:text-[100px]">Upasthiti</span>
       {loading && (
         <div className="loader mt-8">
           <div></div>

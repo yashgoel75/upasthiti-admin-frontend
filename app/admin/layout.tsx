@@ -70,7 +70,6 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen flex bg-gray-50 inter-normal">
-      {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -78,7 +77,6 @@ export default function AdminLayout({
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
@@ -95,7 +93,6 @@ export default function AdminLayout({
         `}
       >
         <div>
-          {/* Close button for mobile */}
           <button
             className="lg:hidden absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100"
             onClick={() => setIsSidebarOpen(false)}
@@ -116,7 +113,7 @@ export default function AdminLayout({
                 {menuItems.map((item) => (
                   <li
                     key={item.label}
-                    onClick={() => router.push(item.route)}
+                    onClick={() => {router.push(item.route); setIsSidebarOpen(false)}}
                     className={`
                       px-4 py-2.5 rounded-lg font-medium cursor-pointer
                       flex items-center gap-3
@@ -145,9 +142,7 @@ export default function AdminLayout({
         </button>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-1 p-4 lg:p-8 min-h-screen overflow-auto max-h-screen">
-        {/* Mobile menu button */}
         <button
           className="lg:hidden p-2 rounded-lg hover:bg-gray-100 mb-4"
           onClick={() => setIsSidebarOpen(true)}

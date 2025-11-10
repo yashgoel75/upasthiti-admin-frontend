@@ -92,9 +92,8 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-50 p-2 md:p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
           <p className="text-gray-600 mt-1">View and manage your profile information</p>
@@ -102,12 +101,9 @@ export default function AccountPage() {
 
         {adminData ? (
           <>
-            {/* Profile Card */}
             <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-sm overflow-hidden mb-6">
-              {/* Cover Background */}
               <div className="h-32 bg-gradient-to-r from-red-500 to-red-600"></div>
               
-              {/* Profile Section */}
               <div className="px-8 pb-8">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 -mt-16 mb-8">
                   <div className="relative">
@@ -156,9 +152,7 @@ export default function AccountPage() {
                   </div>
                 </div>
 
-                {/* Profile Information Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Admin ID */}
                   <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-5">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
@@ -171,7 +165,6 @@ export default function AccountPage() {
                     </div>
                   </div>
 
-                  {/* School ID */}
                   <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-5">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
@@ -184,7 +177,6 @@ export default function AccountPage() {
                     </div>
                   </div>
 
-                  {/* Email */}
                   <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-5">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
@@ -197,7 +189,6 @@ export default function AccountPage() {
                     </div>
                   </div>
 
-                  {/* Phone */}
                   <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-5">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
@@ -210,7 +201,6 @@ export default function AccountPage() {
                     </div>
                   </div>
 
-                  {/* UID */}
                   <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-5 md:col-span-2">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
@@ -226,7 +216,6 @@ export default function AccountPage() {
               </div>
             </div>
 
-            {/* Additional Information Card */}
             <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-sm p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-4">School Information</h3>
               <div className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200 rounded-xl p-6">
@@ -244,7 +233,6 @@ export default function AccountPage() {
             </div>
           </>
         ) : (
-          // Loading Skeleton
           <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-sm overflow-hidden">
             <div className="h-32 bg-gray-300 animate-pulse"></div>
             <div className="px-8 pb-8">
@@ -266,7 +254,6 @@ export default function AccountPage() {
           </div>
         )}
 
-        {/* Footer */}
         <footer className="text-center text-xs mt-8 text-gray-500">
           © {new Date().getFullYear()} Vivekananda Institute of Professional Studies - Technical Campus.
         </footer>
