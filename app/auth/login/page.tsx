@@ -47,15 +47,14 @@ export default function Login() {
   }, [router]);
 
   useEffect(() => {
-  const handleResize = () => setIsMobile(window.innerWidth <= 630);
+    const handleResize = () => setIsMobile(window.innerWidth <= 630);
 
-  handleResize();
+    handleResize();
 
-  window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize);
 
-  return () => window.removeEventListener("resize", handleResize);
-}, []);
-
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -118,7 +117,7 @@ export default function Login() {
       setLoading(false);
     }
   };
-  
+
   const handleForgotPassword = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setResetMessage("");
@@ -162,13 +161,26 @@ export default function Login() {
 
         <div className="w-full lg:w-[40%] px-5 py-8 lg:mr-5 lg:my-5 lg:rounded-e-xl flex flex-col items-center justify-center inter-normal">
           <div className="flex justify-center items-center gap-4 sm:gap-0">
-            <Image src={logo} width={150} height={150} alt="logo" className="sm:w-[200px]" />
-            <div className="block h-15 w-[1px] bg-gray-400 mx-0 md:mx-5"></div>
-            <Image src={isMobile ? vipsLogoMobile : vipsLogo} width={isMobile ? 100: 200} alt="logo" className="pt-0 sm:pt-3 sm:w-[250px]" />
+            <Image
+              src={logo}
+              width={150}
+              height={150}
+              alt="logo"
+              className="sm:w-[200px]"
+            />
+            <div className="block h-15 w-[1px] bg-gray-400 mx-2 md:mx-5"></div>
+            <Image
+              src={isMobile ? vipsLogoMobile : vipsLogo}
+              width={isMobile ? 100 : 200}
+              alt="logo"
+              className="pt-2 sm:pt-3"
+            />
           </div>
 
-          <div className="my-5 lg:my-7 font-bold text-2xl sm:text-3xl text-center">Sign In</div>
-          
+          <div className="my-5 lg:my-7 font-bold text-2xl sm:text-3xl text-center">
+            Sign In
+          </div>
+
           <div className="text-base sm:text-lg text-center px-4">
             Welcome to <b>Upasthiti</b>, the official AMR system of VIPS
           </div>
@@ -241,7 +253,9 @@ export default function Login() {
 
               <div className="flex w-full justify-center items-center my-4">
                 <div className="border-b border-gray-300 w-full mx-3"></div>
-                <span className="text-gray-500 text-sm whitespace-nowrap">or</span>
+                <span className="text-gray-500 text-sm whitespace-nowrap">
+                  or
+                </span>
                 <div className="border-b border-gray-300 w-full mx-3"></div>
               </div>
 
@@ -275,7 +289,9 @@ export default function Login() {
                     d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
                   ></path>
                 </svg>
-                <span className="text-sm sm:text-base">Continue with Google</span>
+                <span className="text-sm sm:text-base">
+                  Continue with Google
+                </span>
               </div>
             </div>
           ) : (
