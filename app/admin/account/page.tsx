@@ -40,6 +40,7 @@ export default function AccountPage() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
+      console.log(user);
       if (user?.uid) {
         const cachedAdmin = localStorage.getItem("adminData");
         if (cachedAdmin) {

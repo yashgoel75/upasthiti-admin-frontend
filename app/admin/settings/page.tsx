@@ -13,6 +13,15 @@ import {
   Sun,
   Check,
 } from "lucide-react";
+import { auth } from "@/lib/firebase";
+import {
+  onAuthStateChanged,
+  User as FirebaseUser,
+  updatePassword,
+  GoogleAuthProvider,
+  linkWithPopup,
+  unlink,
+} from "firebase/auth";
 import Footer from "@/app/components/footer/page";
 
 interface AppearanceSettings {
@@ -31,10 +40,16 @@ interface SecuritySettings {
   loginAlerts: boolean;
 }
 
+interface AuthSettings {
+  authMethod: "google" | "email";
+  googleEmail?: string;
+}
+
 interface AppSettings {
   appearance: AppearanceSettings;
   privacy: PrivacySettings;
   security: SecuritySettings;
+  auth: AuthSettings;
 }
 
 interface ToggleItemProps {
@@ -45,6 +60,16 @@ interface ToggleItemProps {
 }
 
 export default function SettingsPage() {
+  const [signInMethod, setSignInMethod] = useState<String | null>("");
+  const [User, setUser] = useState<FirebaseUser | null>(null);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setSignInMethod(user?.providerData[0].providerId || "");
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const [settings, setSettings] = useState<AppSettings>({
     appearance: {
       theme: "light",
@@ -59,10 +84,20 @@ export default function SettingsPage() {
       sessionTimeout: "30",
       loginAlerts: true,
     },
+    auth: {
+      authMethod: "google",
+      googleEmail: "user@gmail.com",
+    },
   });
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [modalType, setModalType] = useState<
+    "linkGoogle" | "unlinkGoogle" | null
+  >(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     const saved = localStorage.getItem("appSettings");
@@ -106,6 +141,95 @@ export default function SettingsPage() {
     }, 800);
   };
 
+  const handleUnlinkGoogle = () => {
+    setModalType("unlinkGoogle");
+    setShowAuthModal(true);
+  };
+
+  const handleLinkGoogle = () => {
+    setModalType("linkGoogle");
+    setShowAuthModal(true);
+  };
+
+  const confirmUnlinkGoogle = async () => {
+    if (!newPassword || !confirmPassword) {
+      alert("Please fill in both password fields.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+    if (newPassword.length < 6) {
+      alert("Password must be at least 6 characters long.");
+      return;
+    }
+    if (!User) {
+      alert("No user is signed in.");
+      return;
+    }
+
+    try {
+      await updatePassword(User, newPassword);
+      await unlink(User, "google.com");
+
+      setSettings((prev) => ({
+        ...prev,
+        auth: {
+          authMethod: "email",
+          googleEmail: undefined,
+        },
+      }));
+      setShowAuthModal(false);
+      setNewPassword("");
+      setConfirmPassword("");
+      alert("Successfully switched to email/password authentication!");
+    } catch (error: any) {
+      console.error("Error switching auth method:", error);
+      if (error.code === "auth/requires-recent-login") {
+        alert(
+          "This operation is sensitive and requires recent authentication. Please sign in again and retry."
+        );
+      } else {
+        alert(`Failed to update password: ${error.message}`);
+      }
+    }
+  };
+
+  const confirmLinkGoogle = async () => {
+    if (!User) {
+      alert("No user is signed in.");
+      return;
+    }
+    const provider = new GoogleAuthProvider();
+    try {
+      await linkWithPopup(User, provider);
+      setSettings((prev) => ({
+        ...prev,
+        auth: {
+          authMethod: "google",
+          googleEmail: User.email || "user@gmail.com",
+        },
+      }));
+      setShowAuthModal(false);
+      alert("Successfully linked Google account!");
+    } catch (error: any) {
+      console.error("Error linking Google account:", error);
+      if (error.code === "auth/credential-already-in-use") {
+        alert("This Google account is already linked to another user.");
+      } else {
+        alert(`Failed to link Google account: ${error.message}`);
+      }
+    }
+  };
+
+  const closeModal = () => {
+    setShowAuthModal(false);
+    setModalType(null);
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
   const themes = [
     { value: "light", label: "Light", icon: Sun },
     { value: "dark", label: "Dark", icon: Moon },
@@ -122,7 +246,6 @@ export default function SettingsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Appearance */}
           <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
@@ -166,7 +289,6 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Privacy */}
           <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
@@ -196,7 +318,6 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Security */}
           <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-sm p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
@@ -223,7 +344,123 @@ export default function SettingsPage() {
               />
             </div>
           </div>
+
+          <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
+                <Mail className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Authentication
+                </h2>
+                <p className="text-sm text-gray-600">Manage login method</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-xl">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-semibold text-gray-900">Current Method</p>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      signInMethod === "google.com"
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-green-100 text-green-700"
+                    }`}
+                  >
+                    {signInMethod === "google.com"
+                      ? "Google"
+                      : "Email/Password"}
+                  </span>
+                </div>
+                {signInMethod === "google.com" &&
+                  settings.auth.googleEmail && (
+                    <p className="text-sm text-gray-600 mb-3">
+                      Linked account: {User?.email}
+                    </p>
+                  )}
+                <button
+                  onClick={
+                    signInMethod === "google.com"
+                      ? handleUnlinkGoogle
+                      : handleLinkGoogle
+                  }
+                  className="w-full px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  {signInMethod === "google.com"
+                    ? "Switch to Email/Password"
+                    : "Link Google Account"}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {showAuthModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                {modalType === "unlinkGoogle"
+                  ? "Switch to Email/Password"
+                  : "Link Google Account"}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {modalType === "unlinkGoogle"
+                  ? "Create a password to switch from Google authentication. This will unlink your Google account."
+                  : "You'll be redirected to Google to link your account."}
+              </p>
+
+              {modalType === "unlinkGoogle" && (
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Create a new password"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Confirm New Password
+                    </label>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm your new password"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={closeModal}
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={
+                    modalType === "unlinkGoogle"
+                      ? confirmUnlinkGoogle
+                      : confirmLinkGoogle
+                  }
+                  className="flex-1 px-4 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-sm p-6 flex items-center justify-between">
           <div>
@@ -242,9 +479,8 @@ export default function SettingsPage() {
             </button>
           </div>
         </div>
-
-        <Footer/>
       </div>
+      <Footer />
     </div>
   );
 }
