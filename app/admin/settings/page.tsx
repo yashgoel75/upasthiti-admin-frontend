@@ -13,6 +13,7 @@ import {
   Sun,
   Check,
 } from "lucide-react";
+import Footer from "@/app/components/footer/page";
 
 interface AppearanceSettings {
   theme: "light" | "dark";
@@ -242,10 +243,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <footer className="text-center text-xs mt-8 text-gray-500">
-          © {new Date().getFullYear()} Vivekananda Institute of Professional
-          Studies - Technical Campus.
-        </footer>
+        <Footer/>
       </div>
     </div>
   );

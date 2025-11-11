@@ -7,6 +7,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Search, Bell, Camera } from "lucide-react";
+import Footer from "@/app/components/footer/page";
 
 interface Admin {
   adminId: string;
@@ -340,11 +341,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="text-center text-xs mt-8 text-gray-500">
-        © {new Date().getFullYear()} Vivekananda Institute of Professional
-        Studies - Technical Campus.
-      </footer>
+      <Footer/>
     </div>
   );
 }

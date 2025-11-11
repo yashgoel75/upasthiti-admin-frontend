@@ -5,7 +5,17 @@ import Image from "next/image";
 import axios from "axios";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
-import { Camera, Mail, Phone, Building2, User, CreditCard, Shield,IdCard } from "lucide-react";
+import {
+  Camera,
+  Mail,
+  Phone,
+  Building2,
+  User,
+  CreditCard,
+  Shield,
+  IdCard,
+} from "lucide-react";
+import Footer from "@/app/components/footer/page";
 
 interface Admin {
   _id: string;
@@ -95,10 +105,13 @@ export default function AccountPage() {
       const data = await uploadRes.json();
       const imageUrl = data.secure_url;
 
-      await axios.patch("https://upasthiti-backend-production.up.railway.app/api/admin/update", {
-        uid: user.uid,
-        updates: { profilePicture: imageUrl },
-      });
+      await axios.patch(
+        "https://upasthiti-backend-production.up.railway.app/api/admin/update",
+        {
+          uid: user.uid,
+          updates: { profilePicture: imageUrl },
+        }
+      );
 
       setAdminData((prev) =>
         prev ? { ...prev, profilePicture: imageUrl } : prev
@@ -113,17 +126,19 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-2 md:p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
-          <p className="text-gray-600 mt-1">View and manage your profile information</p>
+          <p className="text-gray-600 mt-1">
+            View and manage your profile information
+          </p>
         </div>
 
         {adminData ? (
           <>
             <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-sm overflow-hidden mb-6">
               <div className="h-32 bg-gradient-to-r from-red-500 to-red-600"></div>
-              
+
               <div className="px-8 pb-8">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 -mt-16 mb-8">
                   <div className="relative">
@@ -163,11 +178,17 @@ export default function AccountPage() {
                   </div>
 
                   <div className="flex-1 text-center sm:text-left mt-16 sm:mt-20">
-                    <h2 className="text-2xl font-bold text-gray-900">{adminData.name}</h2>
-                    <p className="text-gray-600 mt-1">{adminData.school?.name}</p>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      {adminData.name}
+                    </h2>
+                    <p className="text-gray-600 mt-1">
+                      {adminData.school?.name}
+                    </p>
                     <div className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-red-50 border border-red-200 rounded-lg">
                       <Shield className="w-4 h-4 text-red-600" />
-                      <span className="text-sm font-semibold text-red-600">Administrator</span>
+                      <span className="text-sm font-semibold text-red-600">
+                        Administrator
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -179,8 +200,12 @@ export default function AccountPage() {
                         <IdCard className="w-5 h-5 text-red-600" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 font-medium uppercase">Admin ID</p>
-                        <p className="text-base font-semibold text-gray-900">{adminData.adminId}</p>
+                        <p className="text-xs text-gray-500 font-medium uppercase">
+                          Admin ID
+                        </p>
+                        <p className="text-base font-semibold text-gray-900">
+                          {adminData.adminId}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -191,8 +216,12 @@ export default function AccountPage() {
                         <Building2 className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 font-medium uppercase">School ID</p>
-                        <p className="text-base font-semibold text-gray-900">{adminData.schoolId}</p>
+                        <p className="text-xs text-gray-500 font-medium uppercase">
+                          School ID
+                        </p>
+                        <p className="text-base font-semibold text-gray-900">
+                          {adminData.schoolId}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -203,8 +232,12 @@ export default function AccountPage() {
                         <Mail className="w-5 h-5 text-green-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-gray-500 font-medium uppercase">Official Email</p>
-                        <p className="text-base font-semibold text-gray-900 truncate">{adminData.officialEmail}</p>
+                        <p className="text-xs text-gray-500 font-medium uppercase">
+                          Official Email
+                        </p>
+                        <p className="text-base font-semibold text-gray-900 truncate">
+                          {adminData.officialEmail}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -215,8 +248,12 @@ export default function AccountPage() {
                         <Phone className="w-5 h-5 text-purple-600" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 font-medium uppercase">Phone Number</p>
-                        <p className="text-base font-semibold text-gray-900">{adminData.phoneNumber}</p>
+                        <p className="text-xs text-gray-500 font-medium uppercase">
+                          Phone Number
+                        </p>
+                        <p className="text-base font-semibold text-gray-900">
+                          {adminData.phoneNumber}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -227,8 +264,12 @@ export default function AccountPage() {
                         <User className="w-5 h-5 text-orange-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-gray-500 font-medium uppercase">Firebase UID</p>
-                        <p className="text-base font-semibold text-gray-900 truncate">{adminData.uid}</p>
+                        <p className="text-xs text-gray-500 font-medium uppercase">
+                          Firebase UID
+                        </p>
+                        <p className="text-base font-semibold text-gray-900 truncate">
+                          {adminData.uid}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -237,16 +278,24 @@ export default function AccountPage() {
             </div>
 
             <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-sm p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">School Information</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">
+                School Information
+              </h3>
               <div className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200 rounded-xl p-6">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl bg-red-500 flex items-center justify-center flex-shrink-0">
                     <Building2 className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Affiliated School</p>
-                    <p className="text-lg font-bold text-gray-900">{adminData.school?.name}</p>
-                    <p className="text-sm text-gray-600 mt-2">ID: {adminData.schoolId}</p>
+                    <p className="text-sm text-gray-600 mb-1">
+                      Affiliated School
+                    </p>
+                    <p className="text-lg font-bold text-gray-900">
+                      {adminData.school?.name}
+                    </p>
+                    <p className="text-sm text-gray-600 mt-2">
+                      ID: {adminData.schoolId}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -265,7 +314,10 @@ export default function AccountPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="bg-gray-50 border-2 border-gray-200 rounded-xl p-5">
+                  <div
+                    key={i}
+                    className="bg-gray-50 border-2 border-gray-200 rounded-xl p-5"
+                  >
                     <div className="h-16 bg-gray-200 rounded animate-pulse"></div>
                   </div>
                 ))}
@@ -274,9 +326,7 @@ export default function AccountPage() {
           </div>
         )}
 
-        <footer className="text-center text-xs mt-8 text-gray-500">
-          © {new Date().getFullYear()} Vivekananda Institute of Professional Studies - Technical Campus.
-        </footer>
+        <Footer />
       </div>
     </div>
   );

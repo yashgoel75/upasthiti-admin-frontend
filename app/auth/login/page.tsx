@@ -25,7 +25,7 @@ interface FormData {
 
 export default function Login() {
   const router = useRouter();
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -182,7 +182,7 @@ export default function Login() {
           </div>
 
           <div className="text-base sm:text-lg text-center px-4">
-            Welcome to <b>Upasthiti</b>, the official AMR system of VIPS
+            Welcome to <b>Upasthiti</b>, the official AMS system of VIPS
           </div>
 
           {!showForgotPassword ? (

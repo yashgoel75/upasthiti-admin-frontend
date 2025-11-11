@@ -147,13 +147,15 @@ export default function AdminLayout({
       </aside>
 
       <main className="flex-1 p-4 lg:p-8 min-h-screen overflow-auto max-h-screen">
-        <button
-          className="lg:hidden p-2 rounded-lg hover:bg-gray-100 mb-4"
-          onClick={() => setIsSidebarOpen(true)}
-        >
-          <Menu className="w-6 h-6" />
-        </button>
-
+        <div className="flex items-center justify-between mb-4">
+          <button
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+          <span className="md:hidden custom-class text-3xl">Upasthiti</span>
+        </div>
         {children}
       </main>
     </div>
