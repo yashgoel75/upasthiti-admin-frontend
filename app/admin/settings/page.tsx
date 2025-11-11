@@ -180,10 +180,10 @@ export default function SettingsPage() {
           googleEmail: undefined,
         },
       }));
+      setSignInMethod("password");
       setShowAuthModal(false);
       setNewPassword("");
       setConfirmPassword("");
-      alert("Successfully switched to email/password authentication!");
     } catch (error: any) {
       console.error("Error switching auth method:", error);
       if (error.code === "auth/requires-recent-login") {
@@ -212,7 +212,7 @@ export default function SettingsPage() {
         },
       }));
       setShowAuthModal(false);
-      alert("Successfully linked Google account!");
+      setSignInMethod("google.com");
     } catch (error: any) {
       console.error("Error linking Google account:", error);
       if (error.code === "auth/credential-already-in-use") {
