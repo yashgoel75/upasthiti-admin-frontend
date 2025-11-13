@@ -31,11 +31,34 @@ interface Admin {
   };
 }
 
+interface PrivacySettings {
+  privacy: {
+    showEmail: boolean;
+    showPhone: boolean;
+  };
+}
+
 export default function AccountPage() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [adminData, setAdminData] = useState<Admin | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [settings, setSettings] = useState<PrivacySettings>({
+    privacy: {
+      showEmail: true,
+      showPhone: false,
+    },
+  });
+
+  useEffect(() => {
+    const saved = localStorage.getItem("appSettings");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setSettings(parsed);
+      console.log("Loaded settings:", parsed);
+    }
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -237,7 +260,7 @@ export default function AccountPage() {
                           Official Email
                         </p>
                         <p className="text-base font-semibold text-gray-900 truncate">
-                          {adminData.officialEmail}
+                          {settings.privacy.showEmail ? adminData.officialEmail : "•••••"}
                         </p>
                       </div>
                     </div>
@@ -253,7 +276,7 @@ export default function AccountPage() {
                           Phone Number
                         </p>
                         <p className="text-base font-semibold text-gray-900">
-                          {adminData.phoneNumber}
+                          {settings.privacy.showPhone ? adminData.phoneNumber : "•••••"}
                         </p>
                       </div>
                     </div>

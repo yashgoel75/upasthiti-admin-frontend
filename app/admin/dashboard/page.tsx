@@ -38,6 +38,13 @@ interface CountsData {
   branchCounts: BranchCounts;
 }
 
+interface PrivacySettings {
+  privacy: {
+    showEmail: boolean;
+    showPhone: boolean;
+  };
+}
+
 export default function Dashboard() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [adminData, setAdminData] = useState<Admin | null>(null);
@@ -58,6 +65,23 @@ export default function Dashboard() {
   const branches = ["CSE", "AIML", "AIDS", "VLSI", "IIOT", "CSAM", "CSE-CS"];
 
   const CACHE_INTERVAL = 50000;
+
+  const [settings, setSettings] = useState<PrivacySettings>({
+    privacy: {
+      showEmail: true,
+      showPhone: false,
+    },
+  });
+
+  useEffect(() => {
+    const saved = localStorage.getItem("appSettings");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setSettings(parsed);
+      console.log("Loaded settings:", parsed);
+    }
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
@@ -284,10 +308,16 @@ export default function Dashboard() {
                     <b>Admin ID:</b> {adminData.adminId}
                   </p>
                   <p>
-                    <b>Email:</b> {adminData.officialEmail}
+                    <b>Email:</b>{" "}
+                    {settings.privacy.showEmail
+                      ? adminData.officialEmail
+                      : "•••••"}
                   </p>
                   <p>
-                    <b>Phone:</b> {adminData.phoneNumber}
+                    <b>Phone:</b>{" "}
+                    {settings.privacy.showPhone
+                      ? adminData.phoneNumber
+                      : "•••••"}
                   </p>
                 </div>
               </>
@@ -341,7 +371,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <Footer/>
+      <Footer />
     </div>
   );
 }
