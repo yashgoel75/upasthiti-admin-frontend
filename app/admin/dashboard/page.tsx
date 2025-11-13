@@ -8,6 +8,7 @@ import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Search, Bell, Camera } from "lucide-react";
 import Footer from "@/app/components/footer/page";
+import { useAuth } from "../..//context/auth";
 
 interface Admin {
   adminId: string;
@@ -46,8 +47,7 @@ interface PrivacySettings {
 }
 
 export default function Dashboard() {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [adminData, setAdminData] = useState<Admin | null>(null);
+  const { user, setAdminData, adminData, loading } = useAuth();
   const [counts, setCounts] = useState<CountsData>({
     studentCount: 0,
     facultyCounts: {
@@ -78,64 +78,8 @@ export default function Dashboard() {
     if (saved) {
       const parsed = JSON.parse(saved);
       setSettings(parsed);
-      console.log("Loaded settings:", parsed);
     }
   }, []);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      if (user?.uid) {
-        const timeIn = localStorage.getItem("timeIn");
-        if (timeIn) {
-          const currentTime = Date.now();
-          if (currentTime - Number(timeIn) > CACHE_INTERVAL) {
-            fetchUserDetails(user.uid);
-          } else {
-            const cachedAdmin = localStorage.getItem("adminData");
-            if (cachedAdmin) {
-              setAdminData(JSON.parse(cachedAdmin));
-            } else {
-              fetchUserDetails(user.uid);
-            }
-          }
-        } else {
-          const cachedAdmin = localStorage.getItem("adminData");
-          if (cachedAdmin) {
-            setAdminData(JSON.parse(cachedAdmin));
-          } else {
-            fetchUserDetails(user.uid);
-          }
-        }
-      }
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const cachedAdmin = localStorage.getItem("adminData");
-    if (cachedAdmin) setAdminData(JSON.parse(cachedAdmin));
-  }, []);
-
-  useEffect(() => {
-    if (adminData) {
-      localStorage.setItem("adminData", JSON.stringify(adminData));
-    }
-  }, [adminData]);
-
-  const fetchUserDetails = async (uid: string) => {
-    try {
-      const res = await axios.get(
-        `https://upasthiti-backend-production.up.railway.app/api/admin?uid=${uid}`
-      );
-      const data = res.data.data[0];
-      setAdminData(data);
-      localStorage.setItem("adminData", JSON.stringify(data));
-      localStorage.setItem("timeIn", Date.now().toString());
-    } catch (error) {
-      console.error("Error fetching admin:", error);
-    }
-  };
 
   const getCount = async () => {
     try {
@@ -217,7 +161,7 @@ export default function Dashboard() {
         }
       );
 
-      setAdminData((prev) =>
+      setAdminData((prev: Admin) =>
         prev ? { ...prev, profilePicture: imageUrl } : prev
       );
     } catch (err) {

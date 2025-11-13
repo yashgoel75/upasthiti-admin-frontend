@@ -15,6 +15,7 @@ import {
   Shield,
   IdCard,
 } from "lucide-react";
+import { useAuth } from "../..//context/auth";
 import Footer from "@/app/components/footer/page";
 
 interface Admin {
@@ -39,8 +40,8 @@ interface PrivacySettings {
 }
 
 export default function AccountPage() {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [adminData, setAdminData] = useState<Admin | null>(null);
+  const { user, setAdminData, adminData, loading } = useAuth();
+
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -56,47 +57,8 @@ export default function AccountPage() {
     if (saved) {
       const parsed = JSON.parse(saved);
       setSettings(parsed);
-      console.log("Loaded settings:", parsed);
     }
   }, []);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      console.log(user);
-      if (user?.uid) {
-        const cachedAdmin = localStorage.getItem("adminData");
-        if (cachedAdmin) {
-          setAdminData(JSON.parse(cachedAdmin));
-        } else {
-          fetchUserDetails(user.uid);
-        }
-      }
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const cachedAdmin = localStorage.getItem("adminData");
-    if (cachedAdmin) setAdminData(JSON.parse(cachedAdmin));
-  }, []);
-
-  useEffect(() => {
-    if (adminData) localStorage.setItem("adminData", JSON.stringify(adminData));
-  }, [adminData]);
-
-  const fetchUserDetails = async (uid: string) => {
-    try {
-      const res = await axios.get(
-        `https://upasthiti-backend-production.up.railway.app/api/admin?uid=${uid}`
-      );
-      const data = res.data.data[0];
-      setAdminData(data);
-      localStorage.setItem("adminData", JSON.stringify(data));
-    } catch (error) {
-      console.error("Error fetching admin:", error);
-    }
-  };
 
   const handleProfilePictureChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -137,7 +99,7 @@ export default function AccountPage() {
         }
       );
 
-      setAdminData((prev) =>
+      setAdminData((prev: Admin) =>
         prev ? { ...prev, profilePicture: imageUrl } : prev
       );
     } catch (err) {
@@ -260,7 +222,9 @@ export default function AccountPage() {
                           Official Email
                         </p>
                         <p className="text-base font-semibold text-gray-900 truncate">
-                          {settings.privacy.showEmail ? adminData.officialEmail : "•••••"}
+                          {settings.privacy.showEmail
+                            ? adminData.officialEmail
+                            : "•••••"}
                         </p>
                       </div>
                     </div>
@@ -276,7 +240,9 @@ export default function AccountPage() {
                           Phone Number
                         </p>
                         <p className="text-base font-semibold text-gray-900">
-                          {settings.privacy.showPhone ? adminData.phoneNumber : "•••••"}
+                          {settings.privacy.showPhone
+                            ? adminData.phoneNumber
+                            : "•••••"}
                         </p>
                       </div>
                     </div>

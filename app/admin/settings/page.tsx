@@ -374,12 +374,11 @@ export default function SettingsPage() {
                       : "Email/Password"}
                   </span>
                 </div>
-                {signInMethod === "google.com" &&
-                  settings.auth.googleEmail && (
-                    <p className="text-sm text-gray-600 mb-3">
-                      Linked account: {User?.email}
-                    </p>
-                  )}
+                {signInMethod === "google.com" && settings.auth.googleEmail && (
+                  <p className="text-sm text-gray-600 mb-3">
+                    Linked account: {User?.email}
+                  </p>
+                )}
                 <button
                   onClick={
                     signInMethod === "google.com"
