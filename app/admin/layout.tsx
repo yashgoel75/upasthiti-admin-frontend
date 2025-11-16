@@ -24,7 +24,9 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
+
 import { auth } from "../../lib/firebase";
+import { ThemeProvider, useTheme } from "../context/theme";
 
 export default function AdminLayout({
   children,
@@ -43,7 +45,16 @@ export default function AdminLayout({
   }, [router]);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const { theme, setTheme } = useTheme();
   const pathname = usePathname();
+
+  useEffect(() => {
+    const saved = localStorage.getItem("appSettings");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+    }
+  }, []);
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", route: "/admin/dashboard" },
@@ -70,7 +81,9 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50 inter-normal">
+    <div className={`min-h-screen flex inter-normal transition-colors ${
+      theme == "dark" ? "bg-gray-900" : "bg-gray-50"
+    }`}>
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -82,32 +95,41 @@ export default function AdminLayout({
         className={`
           fixed lg:static inset-y-0 left-0 z-50
           w-72 lg:w-[22%] 
-          bg-white border-r border-gray-200 
+          border-r
           flex flex-col justify-between p-4 lg:p-8 
           lg:mx-2 lg:my-2 lg:rounded-3xl shadow-sm
-          transform transition-transform duration-300 ease-in-out
+          transform transition-all duration-300 ease-in-out
           ${
             isSidebarOpen
               ? "translate-x-0"
               : "-translate-x-full lg:translate-x-0"
           }
+          ${
+            theme == "dark"
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
+          }
         `}
       >
         <div>
           <button
-            className="lg:hidden absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100"
+            className={`lg:hidden absolute top-4 right-4 p-2 rounded-lg transition-colors ${
+              theme == "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"
+            }`}
             onClick={() => setIsSidebarOpen(false)}
           >
-            <X className="w-5 h-5" />
+            <X className={`w-5 h-5 ${theme == "dark" ? "text-gray-300" : "text-gray-700"}`} />
           </button>
 
           <div className="flex justify-center mb-10">
-            <Image src={logo} width={160} alt="logo" />
+            <span className={`custom-class ${theme == "dark" ? "text-white" : ""} text-[40px]`}>Upasthiti</span>
           </div>
 
           <div className="text-left space-y-8">
             <div>
-              <p className="text-xs font-semibold mb-4 text-gray-500 uppercase tracking-wider">
+              <p className={`text-xs font-semibold mb-4 uppercase tracking-wider transition-colors ${
+                theme == "dark" ? "text-gray-500" : "text-gray-500"
+              }`}>
                 Main Menu
               </p>
               <ul className="space-y-2">
@@ -120,10 +142,14 @@ export default function AdminLayout({
                     }}
                     className={`
                       px-4 py-2.5 rounded-lg font-medium cursor-pointer
-                      flex items-center gap-3
+                      flex items-center gap-3 transition-colors
                       ${
                         pathname === item.route
-                          ? "bg-red-500 text-white"
+                          ? theme == "dark"
+                            ? "bg-red-600 text-white"
+                            : "bg-red-500 text-white"
+                          : theme == "dark"
+                          ? "text-gray-300 hover:bg-gray-700"
                           : "text-gray-700 hover:bg-gray-100"
                       }
                     `}
@@ -139,7 +165,11 @@ export default function AdminLayout({
 
         <button
           onClick={handleLogout}
-          className="px-4 py-2.5 rounded-lg text-red-500 font-medium text-left hover:bg-red-50 cursor-pointer flex items-center gap-3"
+          className={`px-4 py-2.5 rounded-lg font-medium text-left cursor-pointer flex items-center gap-3 transition-colors ${
+            theme == "dark"
+              ? "text-red-400 hover:bg-red-900/30"
+              : "text-red-500 hover:bg-red-50"
+          }`}
         >
           <LogOut className="w-5 h-5" />
           <span>Log Out</span>
@@ -149,12 +179,18 @@ export default function AdminLayout({
       <main className="flex-1 p-4 lg:p-8 min-h-screen overflow-auto max-h-screen">
         <div className="flex items-center justify-between mb-4">
           <button
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+            className={`lg:hidden p-2 rounded-lg transition-colors ${
+              theme == "dark" ? "hover:bg-gray-800" : "hover:bg-gray-100"
+            }`}
             onClick={() => setIsSidebarOpen(true)}
           >
-            <Menu className="w-6 h-6" />
+            <Menu className={`w-6 h-6 ${theme == "dark" ? "text-gray-300" : "text-gray-700"}`} />
           </button>
-          <span className="md:hidden custom-class text-3xl">Upasthiti</span>
+          <span className={`md:hidden custom-class text-3xl transition-colors ${
+            theme == "dark" ? "text-white" : "text-gray-900"
+          }`}>
+            Upasthiti
+          </span>
         </div>
         {children}
       </main>

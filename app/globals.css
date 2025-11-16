@@ -25,3 +25,7 @@ body {
 .custom-class {
   font-family: "Samarkan";
 }
+
+* {
+  transition: 200ms;
+}

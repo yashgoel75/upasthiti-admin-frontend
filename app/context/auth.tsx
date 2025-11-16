@@ -61,10 +61,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         `https://upasthiti-backend-production.up.railway.app/api/admin?uid=${uid}`
       );
       const data = res.data.data[0];
+
       setAdminData(data);
       localStorage.setItem("adminData", JSON.stringify(data));
+
+      return data;
     } catch (error) {
       console.error("Error fetching admin:", error);
+      return null;
     }
   };
 

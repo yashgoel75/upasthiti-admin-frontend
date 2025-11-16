@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Search, Bell, Camera } from "lucide-react";
 import Footer from "@/app/components/footer/page";
 import { useAuth } from "../..//context/auth";
+import { useTheme } from "@/app/context/theme";
 
 interface Admin {
   adminId: string;
@@ -47,6 +48,7 @@ interface PrivacySettings {
 }
 
 export default function Dashboard() {
+  const { theme, setTheme } = useTheme();
   const { user, setAdminData, adminData, loading } = useAuth();
   const [counts, setCounts] = useState<CountsData>({
     studentCount: 0,
@@ -190,20 +192,44 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search
+            className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${
+              theme == "dark" ? "text-gray-500" : "text-gray-400"
+            }`}
+          />
           <input
             type="text"
             placeholder="Search your things"
-            className="w-full border-2 border-gray-200 rounded-xl pl-12 pr-5 py-3 text-sm focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200"
+            className={`w-full border-2 rounded-xl pl-12 pr-5 py-3 text-sm focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-colors ${
+              theme == "dark"
+                ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
+                : "bg-white border-gray-200 text-gray-900"
+            }`}
           />
         </div>
-        <button className="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center hover:bg-gray-50">
-          <Bell className="w-5 h-5 text-gray-600" />
+        <button
+          className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-colors ${
+            theme == "dark"
+              ? "border-gray-700 hover:bg-gray-800"
+              : "border-gray-200 hover:bg-gray-50"
+          }`}
+        >
+          <Bell
+            className={`w-5 h-5 ${
+              theme == "dark" ? "text-gray-400" : "text-gray-600"
+            }`}
+          />
         </button>
       </div>
 
       {/* Profile Section */}
-      <section className="bg-white border-2 border-gray-200 rounded-3xl p-6 mb-8 shadow-sm">
+      <section
+        className={`rounded-3xl p-6 mb-8 shadow-sm border-2 transition-colors ${
+          theme == "dark"
+            ? "bg-gray-800 border-gray-700"
+            : "bg-white border-gray-200"
+        }`}
+      >
         <div className="flex flex-col lg:flex-row items-center gap-6">
           <div className="relative">
             <div className="relative w-28 h-28">
@@ -212,7 +238,9 @@ export default function Dashboard() {
                   src={adminData.profilePicture}
                   alt="Profile"
                   fill
-                  className="rounded-full object-cover border-2 border-gray-200"
+                  className={`rounded-full object-cover border-2 ${
+                    theme == "dark" ? "border-gray-700" : "border-gray-200"
+                  }`}
                 />
               ) : (
                 <div className="w-full h-full rounded-full flex items-center justify-center bg-red-400 text-3xl font-semibold text-white">
@@ -227,7 +255,11 @@ export default function Dashboard() {
             </div>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-0 right-0 bg-red-500 border-2 border-white text-white p-2 rounded-full"
+              className={`absolute bottom-0 right-0 border-2 text-white p-2 rounded-full transition-colors ${
+                theme == "dark"
+                  ? "bg-red-600 border-gray-800"
+                  : "bg-red-500 border-white"
+              }`}
             >
               <Camera className="w-4 h-4" />
             </button>
@@ -243,11 +275,25 @@ export default function Dashboard() {
           <div className="text-center lg:text-left">
             {adminData ? (
               <>
-                <h2 className="text-3xl font-bold">
+                <h2
+                  className={`text-3xl font-bold transition-colors ${
+                    theme == "dark" ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   {getGreeting()}, {adminData.name}
                 </h2>
-                <p className="text-gray-600">{adminData.school?.name}</p>
-                <div className="flex flex-wrap gap-4 mt-3 text-gray-700 text-sm">
+                <p
+                  className={`transition-colors ${
+                    theme == "dark" ? "text-gray-400" : "text-gray-600"
+                  }`}
+                >
+                  {adminData.school?.name}
+                </p>
+                <div
+                  className={`flex flex-wrap gap-4 mt-3 text-sm transition-colors ${
+                    theme == "dark" ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
                   <p>
                     <b>Admin ID:</b> {adminData.adminId}
                   </p>
@@ -267,12 +313,32 @@ export default function Dashboard() {
               </>
             ) : (
               <div className="animate-pulse">
-                <div className="h-8 bg-gray-300 rounded w-3/4 mx-auto lg:mx-0 mb-3"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto lg:mx-0 mb-4"></div>
+                <div
+                  className={`h-8 rounded w-3/4 mx-auto lg:mx-0 mb-3 ${
+                    theme == "dark" ? "bg-gray-700" : "bg-gray-300"
+                  }`}
+                ></div>
+                <div
+                  className={`h-4 rounded w-1/2 mx-auto lg:mx-0 mb-4 ${
+                    theme == "dark" ? "bg-gray-700" : "bg-gray-200"
+                  }`}
+                ></div>
                 <div className="flex flex-wrap gap-4 mt-3 justify-center lg:justify-start">
-                  <div className="h-3 bg-gray-200 rounded w-32"></div>
-                  <div className="h-3 bg-gray-200 rounded w-40"></div>
-                  <div className="h-3 bg-gray-200 rounded w-28"></div>
+                  <div
+                    className={`h-3 rounded w-32 ${
+                      theme == "dark" ? "bg-gray-700" : "bg-gray-200"
+                    }`}
+                  ></div>
+                  <div
+                    className={`h-3 rounded w-40 ${
+                      theme == "dark" ? "bg-gray-700" : "bg-gray-200"
+                    }`}
+                  ></div>
+                  <div
+                    className={`h-3 rounded w-28 ${
+                      theme == "dark" ? "bg-gray-700" : "bg-gray-200"
+                    }`}
+                  ></div>
                 </div>
               </div>
             )}
@@ -283,31 +349,77 @@ export default function Dashboard() {
           {facultyStats.map((s, i) => (
             <div
               key={i}
-              className="bg-gray-50 rounded-xl p-5 border border-gray-200"
+              className={`rounded-xl p-5 border transition-colors ${
+                theme == "dark"
+                  ? "bg-gray-900/50 border-gray-700"
+                  : "bg-gray-50 border-gray-200"
+              }`}
             >
-              <p className="text-2xl font-bold text-gray-900">{s.count}</p>
-              <p className="text-sm text-gray-600 mt-1">{s.label}</p>
+              <p
+                className={`text-2xl font-bold transition-colors ${
+                  theme == "dark" ? "text-white" : "text-gray-900"
+                }`}
+              >
+                {s.count}
+              </p>
+              <p
+                className={`text-sm mt-1 transition-colors ${
+                  theme == "dark" ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                {s.label}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Branch Section */}
-      <section className="bg-white border-2 border-gray-200 rounded-3xl p-6 shadow-sm">
-        <h3 className="text-2xl font-bold mb-6 text-center text-gray-900">
+      <section
+        className={`rounded-3xl p-6 shadow-sm border-2 transition-colors ${
+          theme == "dark"
+            ? "bg-gray-800 border-gray-700"
+            : "bg-white border-gray-200"
+        }`}
+      >
+        <h3
+          className={`text-2xl font-bold mb-6 text-center transition-colors ${
+            theme == "dark" ? "text-white" : "text-gray-900"
+          }`}
+        >
           Explore Branches
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {branches.map((branch) => (
             <div
               key={branch}
-              className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all"
+              className={`rounded-xl p-6 border-2 hover:shadow-lg transition-all ${
+                theme == "dark"
+                  ? "bg-gray-900/50 border-gray-700"
+                  : "bg-white border-gray-200"
+              }`}
             >
-              <p className="text-lg font-bold text-gray-900">{branch}</p>
-              <p className="text-sm text-orange-600 font-semibold mt-2">
+              <p
+                className={`text-lg font-bold transition-colors ${
+                  theme == "dark" ? "text-white" : "text-gray-900"
+                }`}
+              >
+                {branch}
+              </p>
+              <p
+                className={`text-sm font-semibold mt-2 transition-colors ${
+                  theme == "dark" ? "text-orange-400" : "text-orange-600"
+                }`}
+              >
                 No. of Students: {counts.branchCounts[branch] || 0}
               </p>
-              <button className="mt-4 border-2 border-red-500 text-red-500 px-6 py-1.5 rounded-lg hover:bg-red-500 hover:text-white transition-all text-sm">
+              <button
+                className={`mt-4 border-2 px-6 py-1.5 rounded-lg transition-all text-sm ${
+                  theme == "dark"
+                    ? "border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                    : "border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                }`}
+              >
                 Explore
               </button>
             </div>
