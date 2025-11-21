@@ -59,7 +59,7 @@ export default function AdminLayout({
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", route: "/admin/dashboard" },
     { icon: BarChart3, label: "Analytics", route: "/admin/analytics" },
-    { icon: Users, label: "Teachers Details", route: "/admin/teachers" },
+    { icon: Users, label: "Faculty Details", route: "/admin/faculty" },
     {
       icon: GraduationCap,
       label: "Students Details",
@@ -81,9 +81,11 @@ export default function AdminLayout({
   };
 
   return (
-    <div className={`min-h-screen flex inter-normal transition-colors ${
-      theme == "dark" ? "bg-gray-900" : "bg-gray-50"
-    }`}>
+    <div
+      className={`min-h-screen flex inter-normal transition-colors ${
+        theme == "dark" ? "bg-gray-900" : "bg-gray-50"
+      }`}
+    >
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -118,18 +120,30 @@ export default function AdminLayout({
             }`}
             onClick={() => setIsSidebarOpen(false)}
           >
-            <X className={`w-5 h-5 ${theme == "dark" ? "text-gray-300" : "text-gray-700"}`} />
+            <X
+              className={`w-5 h-5 ${
+                theme == "dark" ? "text-gray-300" : "text-gray-700"
+              }`}
+            />
           </button>
 
           <div className="flex justify-center mb-10">
-            <span className={`custom-class ${theme == "dark" ? "text-white" : ""} text-[40px]`}>Upasthiti</span>
+            <span
+              className={`custom-class ${
+                theme == "dark" ? "text-white" : ""
+              } text-[40px]`}
+            >
+              Upasthiti
+            </span>
           </div>
 
           <div className="text-left space-y-8">
             <div>
-              <p className={`text-xs font-semibold mb-4 uppercase tracking-wider transition-colors ${
-                theme == "dark" ? "text-gray-500" : "text-gray-500"
-              }`}>
+              <p
+                className={`text-xs font-semibold mb-4 uppercase tracking-wider transition-colors ${
+                  theme == "dark" ? "text-gray-500" : "text-gray-500"
+                }`}
+              >
                 Main Menu
               </p>
               <ul className="space-y-2">
@@ -184,11 +198,17 @@ export default function AdminLayout({
             }`}
             onClick={() => setIsSidebarOpen(true)}
           >
-            <Menu className={`w-6 h-6 ${theme == "dark" ? "text-gray-300" : "text-gray-700"}`} />
+            <Menu
+              className={`w-6 h-6 ${
+                theme == "dark" ? "text-gray-300" : "text-gray-700"
+              }`}
+            />
           </button>
-          <span className={`md:hidden custom-class text-3xl transition-colors ${
-            theme == "dark" ? "text-white" : "text-gray-900"
-          }`}>
+          <span
+            className={`md:hidden custom-class text-3xl transition-colors ${
+              theme == "dark" ? "text-white" : "text-gray-900"
+            }`}
+          >
             Upasthiti
           </span>
         </div>

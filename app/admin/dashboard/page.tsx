@@ -25,9 +25,10 @@ interface Admin {
 }
 
 interface FacultyCounts {
+  professor: number;
+  professorOfPractice: number;
   associateProfessor: number;
   assistantProfessor: number;
-  labAssistant: number;
 }
 
 interface BranchCounts {
@@ -53,9 +54,10 @@ export default function Dashboard() {
   const [counts, setCounts] = useState<CountsData>({
     studentCount: 0,
     facultyCounts: {
+      professor: 0,
+      professorOfPractice: 0,
       associateProfessor: 0,
       assistantProfessor: 0,
-      labAssistant: 0,
     },
     branchCounts: {},
   });
@@ -100,11 +102,13 @@ export default function Dashboard() {
       setCounts({
         studentCount: data.students?.total || 0,
         facultyCounts: {
+          professor: data.faculty?.byType?.Professor?.count || 0,
+          professorOfPractice:
+            data.faculty?.byType?.ProfessorOfPractice?.count || 0,
           associateProfessor:
             data.faculty?.byType?.AssociateProfessor?.count || 0,
           assistantProfessor:
             data.faculty?.byType?.AssistantProfessor?.count || 0,
-          labAssistant: data.faculty?.byType?.LabAssistant?.count || 0,
         },
         branchCounts,
       });
@@ -176,6 +180,14 @@ export default function Dashboard() {
 
   const facultyStats = [
     {
+      count: counts.facultyCounts.professor,
+      label: "Professor",
+    },
+    {
+      count: counts.facultyCounts.professorOfPractice,
+      label: "Professor of Practice",
+    },
+    {
       count: counts.facultyCounts.associateProfessor,
       label: "Associate Professor",
     },
@@ -183,7 +195,6 @@ export default function Dashboard() {
       count: counts.facultyCounts.assistantProfessor,
       label: "Assistant Professor",
     },
-    { count: counts.facultyCounts.labAssistant, label: "Lab Assistants" },
     { count: counts.studentCount, label: "Students" },
   ];
 
@@ -345,7 +356,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6 text-center">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mt-6 text-center">
           {facultyStats.map((s, i) => (
             <div
               key={i}
@@ -414,7 +425,7 @@ export default function Dashboard() {
                 No. of Students: {counts.branchCounts[branch] || 0}
               </p>
               <button
-                className={`mt-4 border-2 px-6 py-1.5 rounded-lg transition-all text-sm ${
+                className={`mt-4 border-2 px-6 py-1.5 rounded-lg transition-all text-sm cursor-pointer ${
                   theme == "dark"
                     ? "border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
                     : "border-red-500 text-red-500 hover:bg-red-500 hover:text-white"

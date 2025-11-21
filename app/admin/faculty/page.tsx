@@ -5,12 +5,12 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-interface Teacher {
+interface Faculty {
   _id: string;
   name: string;
   email: string;
   phone: string;
-  role: string;
+  departmentId: string;
   subjects: string;
   timetable: string;
   type: string;
@@ -19,7 +19,7 @@ interface Teacher {
 }
 
 interface GroupedTeachers {
-  [key: string]: Teacher[];
+  [key: string]: Faculty[];
 }
 
 interface FacultyUploadResponse {
@@ -36,13 +36,27 @@ interface FacultyUploadResponse {
 
 export default function Account() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [teachers, setTeachers] = useState<Faculty[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [addTeacher, setAddTeacher] = useState(false);
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadResult, setUploadResult] =
     useState<FacultyUploadResponse | null>(null);
+
+  const departmentMap: Record<string, string> = {
+    "DEPT-CSE": "Computer Science & Engineering",
+    "DEPT-AIML": "Artificial Intelligence & Machine Learning",
+    "DEPT-IT": "Information Technology",
+    "DEPT-ECE": "Electronics & Communication",
+    "DEPT-MECH": "Mechanical Engineering",
+    "DEPT-CIVIL": "Civil Engineering",
+    "DEPT-EEE": "Electrical & Electronics",
+  };
+
+  const [filterDept, setFilterDept] = useState<string>("all");
+  const [filterType, setFilterType] = useState<string>("all");
+  const [showFilters, setShowFilters] = useState(false);
 
   const handleUploadCSV = async () => {
     if (!csvFile) return;
@@ -87,12 +101,26 @@ export default function Account() {
   const filteredGroupedTeachers: GroupedTeachers = Object.entries(
     groupedTeachers
   ).reduce((acc, [type, teacherList]) => {
-    const filtered = teacherList.filter((teacher) =>
+    let filtered = teacherList;
+
+    // Filter by search
+    filtered = filtered.filter((teacher) =>
       teacher.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    if (filtered.length > 0) {
-      acc[type] = filtered;
+
+    // Filter by type
+    if (filterType !== "all") {
+      filtered = filtered.filter((teacher) => teacher.type === filterType);
     }
+
+    // Filter by department
+    if (filterDept !== "all") {
+      filtered = filtered.filter(
+        (teacher) => teacher.departmentId === filterDept 
+      );
+    }
+
+    if (filtered.length > 0) acc[type] = filtered;
     return acc;
   }, {} as GroupedTeachers);
 
@@ -143,38 +171,27 @@ export default function Account() {
     doc.save("faculty_credentials.pdf");
   };
 
-  const TeacherCard = ({ teacher }: { teacher: Teacher }) => (
+  const TeacherCard = ({ teacher }: { teacher: Faculty }) => (
     <div
-      className={`rounded-2xl border-2 p-6 relative transition-all hover:shadow-lg ${
-        theme === "dark"
-          ? "bg-gray-800 border-gray-700"
-          : "bg-white border-gray-200"
-      }`}
+      className={`
+      rounded-2xl p-6 relative transition-all
+      hover:shadow-lg hover:-translate-y-1
+      ${theme === "dark" ? "bg-gray-800" : "bg-white"}
+    `}
     >
-      <button
-        className={`absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100 ${
-          theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"
-        }`}
-      >
-        <MoreVertical
-          className={`w-5 h-5 ${
-            theme === "dark" ? "text-gray-400" : "text-gray-600"
-          }`}
-        />
-      </button>
-
       <div className="flex flex-col items-center text-center">
         <div
-          className={`w-20 h-20 rounded-full border-2 flex items-center justify-center mb-4 ${
-            theme === "dark"
-              ? "bg-gray-700 border-gray-600"
-              : "bg-gray-100 border-gray-300"
-          }`}
+          className={`
+          w-20 h-20 rounded-full flex items-center justify-center mb-5
+          shadow-sm
+          ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}
+        `}
         >
           <svg
-            className={`w-10 h-10 ${
-              theme === "dark" ? "text-gray-500" : "text-gray-400"
-            }`}
+            className={`
+            w-10 h-10
+            ${theme === "dark" ? "text-gray-500" : "text-gray-400"}
+          `}
             fill="currentColor"
             viewBox="0 0 24 24"
           >
@@ -183,57 +200,57 @@ export default function Account() {
         </div>
 
         <h3
-          className={`text-lg font-semibold mb-1 ${
-            theme === "dark" ? "text-white" : "text-gray-900"
-          }`}
+          className={`
+          text-xl font-semibold
+          ${theme === "dark" ? "text-white" : "text-gray-900"}
+        `}
         >
           {teacher.name}
         </h3>
 
         <p
-          className={`text-sm mb-4 ${
-            theme === "dark" ? "text-gray-400" : "text-gray-600"
-          }`}
+          className={`
+          text-sm mt-1 mb-6
+          ${theme === "dark" ? "text-gray-400" : "text-gray-500"}
+        `}
         >
           ID: {teacher.facultyId}
         </p>
 
-        <div
-          className={`w-full rounded-xl border-2 p-4 space-y-2 ${
-            theme === "dark"
-              ? "bg-gray-700/50 border-gray-600"
-              : "bg-gray-50 border-gray-200"
-          }`}
-        >
+        <div className="w-full space-y-4 text-left rounded-lg border-1 border-gray-200 shadow bg-gray-50 p-5">
           <div>
             <p
-              className={`text-xs font-semibold mb-1 ${
-                theme === "dark" ? "text-gray-400" : "text-gray-600"
-              }`}
+              className={`
+              text-xs font-medium uppercase tracking-wide mb-1
+              ${theme === "dark" ? "text-gray-500" : "text-gray-500"}
+            `}
             >
               Department
             </p>
             <p
-              className={`text-sm ${
-                theme === "dark" ? "text-gray-200" : "text-gray-900"
-              }`}
+              className={`
+              text-sm
+              ${theme === "dark" ? "text-gray-200" : "text-gray-800"}
+            `}
             >
-              {teacher.type}
+              {departmentMap[teacher.departmentId] || "Unknown Department"}
             </p>
           </div>
 
           <div>
             <p
-              className={`text-xs font-semibold mb-1 ${
-                theme === "dark" ? "text-gray-400" : "text-gray-600"
-              }`}
+              className={`
+              text-xs font-medium uppercase tracking-wide mb-1
+              ${theme === "dark" ? "text-gray-500" : "text-gray-500"}
+            `}
             >
-              E-mail
+              Email
             </p>
             <p
-              className={`text-sm break-all ${
-                theme === "dark" ? "text-gray-200" : "text-gray-900"
-              }`}
+              className={`
+              text-sm break-all leading-relaxed
+              ${theme === "dark" ? "text-gray-200" : "text-gray-800"}
+            `}
             >
               {teacher.email}
             </p>
@@ -256,14 +273,14 @@ export default function Account() {
               theme === "dark" ? "text-white" : "text-gray-900"
             }`}
           >
-            Manage Teachers
+            Manage Faculties
           </h1>
           <p
             className={`mt-1 transition-colors ${
               theme === "dark" ? "text-gray-400" : "text-gray-600"
             }`}
           >
-            View and manage teachers' information
+            View and manage faculties' information
           </p>
         </div>
 
@@ -287,18 +304,20 @@ export default function Account() {
             />
           </div>
           <button
-            className={`h-11 text-sm cursor-pointer rounded-xl px-4 flex gap-2 border-2 items-center justify-center transition-colors ${
+            onClick={() => setShowFilters(!showFilters)}
+            className={`h-11 text-sm rounded-xl px-4 flex gap-2 border-2 items-center transition-colors ${
               theme === "dark"
                 ? "border-gray-700 hover:bg-gray-800 text-gray-300"
                 : "border-gray-200 hover:bg-gray-50 text-gray-700"
             }`}
           >
             <Filter className="w-4 h-4" />
-            Filter
+            Filters
           </button>
+
           <button
             onClick={() => {
-              setAddTeacher(true);
+              setAddTeacher(!addTeacher);
             }}
             className={`h-11 text-sm cursor-pointer rounded-xl px-4 flex gap-2 border-2 items-center justify-center transition-colors ${
               theme === "dark"
@@ -306,9 +325,84 @@ export default function Account() {
                 : "border-red-500 bg-red-500 hover:bg-red-600 text-white"
             }`}
           >
-            + Add Teacher
+            + Add Faculty
           </button>
         </div>
+
+        {showFilters && (
+          <div
+            className={`
+      p-5 rounded-xl border mb-6
+      ${
+        theme === "dark"
+          ? "bg-gray-800 border-gray-700"
+          : "bg-white border-gray-200"
+      }
+    `}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Department Filter */}
+              <div>
+                <label
+                  className={`text-sm font-medium ${
+                    theme === "dark" ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  Filter by Department
+                </label>
+                <select
+                  value={filterDept}
+                  onChange={(e) => setFilterDept(e.target.value)}
+                  className={`
+            w-full mt-2 border rounded-lg px-3 py-2 text-sm
+            ${
+              theme === "dark"
+                ? "bg-gray-800 border-gray-700 text-gray-200"
+                : "bg-white border-gray-300 text-gray-900"
+            }
+          `}
+                >
+                  <option value="all">All Departments</option>
+                  {Object.entries(departmentMap).map(([key, val]) => (
+                    <option key={key} value={key}>
+                      {val}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Type Filter */}
+              <div>
+                <label
+                  className={`text-sm font-medium ${
+                    theme === "dark" ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  Filter by Type
+                </label>
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className={`
+            w-full mt-2 border rounded-lg px-3 py-2 text-sm
+            ${
+              theme === "dark"
+                ? "bg-gray-800 border-gray-700 text-gray-200"
+                : "bg-white border-gray-300 text-gray-900"
+            }
+          `}
+                >
+                  <option value="all">All Types</option>
+                  {Object.keys(groupedTeachers).map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
 
         {addTeacher && (
           <div
@@ -401,13 +495,13 @@ export default function Account() {
                 Uploaded: {uploadResult.stats.successful} /{" "}
                 {uploadResult.stats.total}
                 <div className="w-full flex justify-center">
-                <button
-                  onClick={downloadFacultyPDF}
-                  className="mt-4 w-fit text-center px-5 m-auto py-1 rounded-lg text-sm font-medium bg-green-600 hover:bg-green-700 text-white"
-                >
-                  Download PDF
+                  <button
+                    onClick={downloadFacultyPDF}
+                    className="mt-4 w-fit text-center px-5 m-auto py-1 rounded-lg text-sm font-medium bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Download PDF
                   </button>
-                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -427,7 +521,6 @@ export default function Account() {
                 : type}
             </h2>
 
-            {/* Teacher Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {teacherList.map((teacher, index) => (
                 <TeacherCard
@@ -445,7 +538,7 @@ export default function Account() {
               theme === "dark" ? "text-gray-400" : "text-gray-600"
             }`}
           >
-            No teachers found. Click "Add Teacher" to get started.
+            No faculties found. Click "Add Faculty" to get started.
           </div>
         )}
       </div>
