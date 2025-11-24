@@ -46,9 +46,9 @@ export default function Account() {
 
   const departmentMap: Record<string, string> = {
     "DEPT-CSE": "Computer Science & Engineering",
-    "DEPT-AIML": "Artificial Intelligence & Machine Learning",
+    "DEPT-APSCI": "Applied Science",
     "DEPT-IT": "Information Technology",
-    "DEPT-ECE": "Electronics & Communication",
+    "DEPT-ECE": "Electronics",
     "DEPT-MECH": "Mechanical Engineering",
     "DEPT-CIVIL": "Civil Engineering",
     "DEPT-EEE": "Electrical & Electronics",
