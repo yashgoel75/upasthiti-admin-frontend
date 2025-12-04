@@ -81,6 +81,7 @@ export default function Account() {
       const res = await fetch(
         "https://upasthiti-backend-production.up.railway.app/api/faculty"
       );
+      console.log(res);
       const data = await res.json();
       console.log(data.data);
       setTeachers(data.data);

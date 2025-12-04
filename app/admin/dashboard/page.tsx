@@ -24,6 +24,10 @@ interface Admin {
   };
 }
 
+interface School {
+  name: string;
+}
+
 interface FacultyCounts {
   professor: number;
   professorOfPractice: number;
@@ -50,7 +54,7 @@ interface PrivacySettings {
 
 export default function Dashboard() {
   const { theme, setTheme } = useTheme();
-  const { user, setAdminData, adminData, loading } = useAuth();
+  const { user, setAdminData, adminData, schoolData, loading } = useAuth();
   const [counts, setCounts] = useState<CountsData>({
     studentCount: 0,
     facultyCounts: {
@@ -298,7 +302,7 @@ export default function Dashboard() {
                     theme == "dark" ? "text-gray-400" : "text-gray-600"
                   }`}
                 >
-                  {adminData.school?.name}
+                  {schoolData.name}
                 </p>
                 <div
                   className={`flex flex-wrap gap-4 mt-3 text-sm transition-colors ${
