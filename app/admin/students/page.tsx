@@ -6,6 +6,7 @@ import { Search, Filter } from "lucide-react";
 import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useRouter } from "next/navigation";
 
 interface Student {
   _id: string;
@@ -35,6 +36,7 @@ interface StudentUploadResponse {
 }
 
 export default function Students() {
+  const router = useRouter();
   const { theme } = useTheme();
 
   const [students, setStudents] = useState<Student[]>([]);
@@ -54,7 +56,9 @@ export default function Students() {
 
   const fetchStudents = async () => {
     try {
-      const res = await fetch("https://upasthiti-backend-production.up.railway.app/api/student/all");
+      const res = await fetch(
+        "https://upasthiti-backend-production.up.railway.app/api/student/all"
+      );
       const json = await res.json();
       setStudents(json.data);
     } catch (err) {
@@ -153,8 +157,11 @@ export default function Students() {
 
   const StudentCard = ({ student }: { student: Student }) => (
     <div
+      onClick={() => {
+        router.push(`/admin/students/${student.uid}`);
+      }}
       className={`
-        p-6 rounded-2xl shadow transition-all
+        p-6 rounded-2xl shadow transition-all cursor-pointer
         ${
           theme === "dark"
             ? "bg-gray-800 hover:bg-gray-700"

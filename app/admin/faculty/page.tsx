@@ -4,6 +4,7 @@ import { Filter, Search, MoreVertical } from "lucide-react";
 import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useRouter } from "next/navigation";
 
 interface Faculty {
   _id: string;
@@ -34,7 +35,8 @@ interface FacultyUploadResponse {
   errors?: any[];
 }
 
-export default function Account() {
+export default function Faculty() {
+  const router = useRouter();
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [teachers, setTeachers] = useState<Faculty[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -174,9 +176,11 @@ export default function Account() {
 
   const TeacherCard = ({ teacher }: { teacher: Faculty }) => (
     <div
+      onClick={() => {router.push(`/admin/faculty/${teacher.uid}`)}}
       className={`
       rounded-2xl p-6 relative transition-all
       hover:shadow-lg hover:-translate-y-1
+      cursor-pointer
       ${theme === "dark" ? "bg-gray-800" : "bg-white"}
     `}
     >
