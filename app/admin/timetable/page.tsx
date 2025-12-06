@@ -25,7 +25,6 @@ export default function TimeTable() {
     fetchTimetable();
   }, []);
 
-  // 🟢 Fetch timetable
   const fetchTimetable = async () => {
     try {
       const res = await fetch(
