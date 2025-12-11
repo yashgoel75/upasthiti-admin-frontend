@@ -3,15 +3,16 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import axios from "axios";
-import { UserPen } from "lucide-react";
 import {
-  Camera,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  Landmark,
+  Table,
+  UserPen,
   Mail,
   Phone,
   Building2,
-  User,
-  CreditCard,
-  Shield,
   IdCard,
 } from "lucide-react";
 import { useAuth } from "../../../context/auth";
@@ -45,15 +46,26 @@ interface Faculty {
 }
 
 export default function FacultyPage() {
+  const departmentMap: Record<string, string> = {
+    "DEPT-CSE": "Computer Science & Engineering",
+    "DEPT-APSCI": "Applied Science",
+    "DEPT-IT": "Information Technology",
+    "DEPT-ECE": "Electronics",
+    "DEPT-MECH": "Mechanical Engineering",
+    "DEPT-CIVIL": "Civil Engineering",
+    "DEPT-EEE": "Electrical & Electronics",
+  };
+
   const params = useParams();
-  console.log(params.facultyId);
-
   const { schoolData } = useAuth();
-
   const [facultyData, setFacultyData] = useState<Faculty | null>(null);
+
   useEffect(() => {
     fetchFacultyData();
   }, []);
+
+  const [isTimeTableOpen, setIsTimeTableOpen] = useState(false);
+  const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);
 
   async function fetchFacultyData() {
     try {
@@ -67,6 +79,74 @@ export default function FacultyPage() {
       console.error(error);
     }
   }
+
+  const [subjects, setSubjects] = useState<
+    Record<
+      string,
+      Array<{ subjectName: string; subjectCode: string; classId: string }>
+    >
+  >({});
+
+  async function fetchSubjects() {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/faculty/subjects?facultyId=${facultyData?.facultyId}`
+      );
+      setSubjects(res.data.subjectsBySemester);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const PERIODS = [
+    { period: 1, time: "9:00-9:50" },
+    { period: 2, time: "9:50-10:40" },
+    { period: 3, time: "10:40-11:30" },
+    { period: 4, time: "11:30-12:20" },
+    { period: 5, time: "12:20-1:10" },
+    { period: 6, time: "1:10-2:00" },
+    { period: 7, time: "2:00-2:50" },
+    { period: 8, time: "2:50-3:40" },
+    { period: 9, time: "3:40-4:30" },
+    { period: 10, time: "4:30-5:20" },
+  ];
+
+  const [timetable, setTimetable] = useState<
+    Array<{
+      day: string;
+      period: number;
+      subjectName: string;
+      room: string;
+      classId: string;
+    }>
+  >([]);
+
+  async function fetchTimetable() {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/faculty/schedule?facultyId=${facultyData?.facultyId}`
+      );
+      setTimetable(res.data.schedule);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const days = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ];
+
+  const timetableMap: Record<string, Record<string, any>> = {};
+  days.forEach((d) => (timetableMap[d] = {}));
+
+  timetable.forEach((item) => {
+    timetableMap[item.day][item.period] = item;
+  });
 
   const [settings, setSettings] = useState<Settings>({
     appearance: {
@@ -170,28 +250,28 @@ export default function FacultyPage() {
                         theme == "dark" ? "text-gray-400" : "text-gray-600"
                       }`}
                     >
-                      {schoolData.name}
+                      {schoolData?.name}
                     </p>
-                    <div
-                      className={`inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-lg transition-colors ${
-                        theme == "dark"
-                          ? "bg-red-900/30 border border-red-700"
-                          : "bg-red-50 border border-red-200"
+                  </div>
+                  <div
+                    className={`inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-lg transition-colors ${
+                      theme == "dark"
+                        ? "bg-red border border-white"
+                        : "bg-white border border-white"
+                    }`}
+                  >
+                    <UserPen
+                      className={`w-4 h-4 ${
+                        theme == "dark" ? "text-white" : "text-red-600"
+                      }`}
+                    />
+                    <span
+                      className={`text-sm font-semibold ${
+                        theme == "dark" ? "text-white" : "text-red-600"
                       }`}
                     >
-                      <UserPen
-                        className={`w-4 h-4 ${
-                          theme == "dark" ? "text-red-400" : "text-red-600"
-                        }`}
-                      />
-                      <span
-                        className={`text-sm font-semibold ${
-                          theme == "dark" ? "text-red-400" : "text-red-600"
-                        }`}
-                      >
-                        {facultyData.type}
-                      </span>
-                    </div>
+                      {facultyData.type}
+                    </span>
                   </div>
                 </div>
 
@@ -209,7 +289,7 @@ export default function FacultyPage() {
                           theme == "dark" ? "bg-red-900/40" : "bg-red-100"
                         }`}
                       >
-                        <CreditCard
+                        <IdCard
                           className={`w-5 h-5 ${
                             theme == "dark" ? "text-red-400" : "text-red-600"
                           }`}
@@ -356,14 +436,109 @@ export default function FacultyPage() {
                     </div>
                   </div>
                 </div>
+                <div
+                  className={`rounded-xl p-5 transition-colors mt-6 ${
+                    theme == "dark"
+                      ? "bg-gray-900/50 border-2 border-gray-700"
+                      : "bg-gray-50 border-2 border-gray-200"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+                        theme == "dark" ? "bg-orange-900/40" : "bg-orange-100"
+                      }`}
+                    >
+                      <Landmark
+                        className={`w-5 h-5 ${
+                          theme == "dark"
+                            ? "text-orange-400"
+                            : "text-orange-600"
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <p
+                        className={`text-xs font-medium uppercase transition-colors ${
+                          theme == "dark" ? "text-gray-500" : "text-gray-500"
+                        }`}
+                      >
+                        Department
+                      </p>
+                      <p
+                        className={`text-base font-semibold transition-colors ${
+                          theme == "dark" ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        {departmentMap[facultyData.departmentId] ||
+                          facultyData.departmentId}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className={`rounded-3xl p-6 transition-colors ${
+                  theme == "dark"
+                    ? "bg-gray-800 border-gray-700"
+                    : "bg-white border-gray-200"
+                }`}
+              >
+                <h3
+                  className={`text-xl font-bold mb-4 transition-colors ${
+                    theme == "dark" ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  School Information
+                </h3>
+                <div
+                  className={`rounded-xl p-6 transition-colors ${
+                    theme == "dark"
+                      ? "bg-gradient-to-br from-red-900/30 to-orange-900/30 border-2 border-red-800"
+                      : "bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200"
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+                        theme == "dark" ? "bg-red-600" : "bg-red-500"
+                      }`}
+                    >
+                      <Building2 className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p
+                        className={`text-sm mb-1 transition-colors ${
+                          theme == "dark" ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        Affiliated School
+                      </p>
+                      <p
+                        className={`text-lg font-bold transition-colors ${
+                          theme == "dark" ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        {schoolData?.name}
+                      </p>
+                      <p
+                        className={`text-sm transition-colors ${
+                          theme == "dark" ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        ID: {facultyData.schoolId}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
             <div
-              className={`rounded-3xl shadow-sm p-6 transition-colors ${
+              className={`rounded-3xl p-6 transition-colors flex-1 space-y-4 ${
                 theme == "dark"
-                  ? "bg-gray-800 border-2 border-gray-700"
-                  : "bg-white border-2 border-gray-200"
+                  ? "bg-gray-800 border-gray-700"
+                  : "bg-white border-gray-200"
               }`}
             >
               <h3
@@ -371,47 +546,202 @@ export default function FacultyPage() {
                   theme == "dark" ? "text-white" : "text-gray-900"
                 }`}
               >
-                School Information
+                Additional Information
               </h3>
               <div
-                className={`rounded-xl p-6 transition-colors ${
+                onClick={() => {
+                  const willOpen = !isTimeTableOpen;
+                  setIsTimeTableOpen(willOpen);
+
+                  if (willOpen) fetchTimetable();
+                }}
+                className={`rounded-xl p-6 transition-colors space-y-4 flex flex-col cursor-pointer ${
                   theme == "dark"
-                    ? "bg-gradient-to-br from-red-900/30 to-orange-900/30 border-2 border-red-800"
-                    : "bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200"
+                    ? "bg-gradient-to-br from-gray-900/30 to-orange-900/30 border-2 border-gray-800"
+                    : "bg-gradient-to-br from-gray-50 to-orange-50 border-2 border-gray-200"
                 }`}
               >
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
-                      theme == "dark" ? "bg-red-600" : "bg-red-500"
-                    }`}
-                  >
-                    <Building2 className="w-6 h-6 text-white" />
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+                        theme == "dark" ? "bg-gray-600" : "bg-gray-500"
+                      }`}
+                    >
+                      <Table className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-xl">Time Table</h2>
+                    </div>
                   </div>
                   <div>
-                    <p
-                      className={`text-sm mb-1 transition-colors ${
-                        theme == "dark" ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
-                      Affiliated School
-                    </p>
-                    <p
-                      className={`text-lg font-bold transition-colors ${
-                        theme == "dark" ? "text-white" : "text-gray-900"
-                      }`}
-                    >
-                      {schoolData.name}
-                    </p>
-                    <p
-                      className={`text-sm mt-2 transition-colors ${
-                        theme == "dark" ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
-                      ID: {facultyData.schoolId}
-                    </p>
+                    {isTimeTableOpen ? (
+                      <ChevronUp size={30}></ChevronUp>
+                    ) : (
+                      <ChevronDown size={30}></ChevronDown>
+                    )}
                   </div>
                 </div>
+                {isTimeTableOpen && (
+                  <div
+                    className={`mt-4 rounded-xl overflow-x-auto ${
+                      theme === "dark" ? "bg-gray-900/40" : "bg-white"
+                    }`}
+                  >
+                    <table
+                      className={`w-full border-collapse ${
+                        theme === "dark" ? "border-gray-700" : "border-gray-300"
+                      }`}
+                    >
+                      <thead>
+                        <tr>
+                          <th
+                            className={`p-3 text-left border ${
+                              theme === "dark"
+                                ? "border-gray-700 bg-gray-900/60 text-gray-300"
+                                : "border-gray-300 text-gray-700 bg-gray-50"
+                            }`}
+                          ></th>
+
+                          {PERIODS.map((slot) => (
+                            <th
+                              key={slot.period}
+                              className={`p-3 text-sm font-semibold border w-32 text-center ${
+                                theme === "dark"
+                                  ? "border-gray-700 text-gray-300 bg-gray-900/60"
+                                  : "border-gray-300 text-gray-700 bg-gray-50"
+                              }`}
+                            >
+                              {slot.time}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {days.map((day) => (
+                          <tr key={day}>
+                            <td
+                              className={`p-3 font-semibold capitalize border w-28 text-center ${
+                                theme === "dark"
+                                  ? "border-gray-700 text-gray-200 bg-gray-900/60"
+                                  : "border-gray-300 text-gray-700 bg-gray-50"
+                              }`}
+                            >
+                              {day}
+                            </td>
+
+                            {PERIODS.map((slot) => {
+                              const cell = timetableMap[day][slot.period];
+
+                              return (
+                                <td
+                                  key={slot.period}
+                                  className={`border h-24 w-32 p-2 align-middle text-xs text-center ${
+                                    theme === "dark"
+                                      ? "border-gray-700 text-gray-300 bg-gray-800/40"
+                                      : "border-gray-300 text-gray-800"
+                                  }`}
+                                >
+                                  {cell ? (
+                                    <div className="space-y-1 flex flex-col justify-center h-full">
+                                      <p className="font-bold">
+                                        {cell.subjectName}
+                                      </p>
+                                      <p className="opacity-80">
+                                        Room: {cell.room}
+                                      </p>
+                                      <p className="opacity-80">
+                                        {cell.classId}
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <span className="opacity-30">—</span>
+                                  )}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+              <div
+                onClick={() => {
+                  const willOpen = !isSubjectsOpen;
+                  setIsSubjectsOpen(willOpen);
+
+                  if (willOpen) {
+                    fetchSubjects();
+                  }
+                }}
+                className={`rounded-xl p-6 transition-colors cursor-pointer ${
+                  theme == "dark"
+                    ? "bg-gradient-to-br from-gray-900/30 to-orange-900/30 border-2 border-gray-800"
+                    : "bg-gradient-to-br from-gray-50 to-orange-50 border-2 border-gray-200"
+                }`}
+              >
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+                        theme == "dark" ? "bg-gray-600" : "bg-gray-500"
+                      }`}
+                    >
+                      <BookOpen className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-xl">Subjects</h2>
+                    </div>
+                  </div>
+                  <div>
+                    {isSubjectsOpen ? (
+                      <ChevronUp size={30}></ChevronUp>
+                    ) : (
+                      <ChevronDown size={30}></ChevronDown>
+                    )}
+                  </div>
+                </div>
+                {isSubjectsOpen && (
+                  <div className="mt-4 space-y-6">
+                    {Object.keys(subjects).map((sem) => (
+                      <div key={sem}>
+                        <h2 className="text-lg font-bold mb-3">
+                          Semester {sem}
+                        </h2>
+
+                        <div className="space-y-4">
+                          {subjects[sem].map((subj, idx) => (
+                            <div
+                              key={idx}
+                              className={`rounded-xl p-4 border-2 ${
+                                theme === "dark"
+                                  ? "bg-gray-900/50 border-gray-700"
+                                  : "bg-white border-gray-300"
+                              }`}
+                            >
+                              <div className="w-full grid grid-cols-3">
+                                <p className="font-semibold text-md text-left px-5">
+                                  {subj.subjectName}
+                                </p>
+
+                                <div className="text-sm opacity-80 text-center">
+                                  Code: {subj.subjectCode}
+                                </div>
+
+                                <div className="text-sm opacity-80 text-right px-5">
+                                  Branch: {subj.classId}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </>
