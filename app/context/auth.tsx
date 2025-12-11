@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           fetchUserDetails(user.uid)
             .then((data) => {
               console.log(data);
-              setAdminData(data._doc);
+              setAdminData(data);
               setSchoolData(data.school);
 
               // localStorage.setItem("adminData", JSON.stringify(data));
@@ -63,12 +63,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const fetchUserDetails = async (uid: string) => {
     try {
       const res = await axios.get(
-        `https://upasthiti-backend-production.up.railway.app/api/admin?uid=${uid}`
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/admin?uid=${uid}`
       );
       const data = res.data;
       console.log(data.data);
-      console.log(data.data[0]._doc);
-      setAdminData(data.data[0]._doc);
+      console.log(data.data[0]);
+      setAdminData(data.data[0]);
       setSchoolData(data.data[0].school);
       // localStorage.setItem("adminData", JSON.stringify(data));
 
@@ -80,7 +80,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <AuthContext.Provider value={{ user, setAdminData, adminData, schoolData, loading }}>
+    <AuthContext.Provider
+      value={{ user, setAdminData, adminData, schoolData, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

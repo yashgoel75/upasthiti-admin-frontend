@@ -1,22 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { useTheme } from "@/app/context/theme";
+import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
+import axios from "axios";
+import { UserPen } from "lucide-react";
 import {
-  ArrowLeft,
+  Camera,
   Mail,
   Phone,
-  BookOpen,
-  UserCheck,
-  FileText,
+  Building2,
+  User,
+  CreditCard,
+  Shield,
   IdCard,
 } from "lucide-react";
+import { useAuth } from "../../../context/auth";
+import { useTheme } from "@/app/context/theme";
+import Footer from "@/app/components/footer/page";
+import { useParams } from "next/navigation";
+
+interface Settings {
+  appearance: {
+    theme: string;
+  };
+  privacy: {
+    showEmail: boolean;
+    showPhone: boolean;
+  };
+}
 
 interface Faculty {
   _id: string;
   name: string;
-  email: string;
+  officialEmail: string;
   phone: string;
   departmentId: string;
   subjects: string;
@@ -24,297 +40,439 @@ interface Faculty {
   type: string;
   uid: string;
   facultyId: string;
+  schoolId: string;
+  profilePicture: string;
 }
 
-export default function SingleFaculty() {
-  const { theme } = useTheme();
+export default function FacultyPage() {
   const params = useParams();
-  const router = useRouter();
+  console.log(params.facultyId);
 
-  const facultyId = params.facultyId as string;
+  const { schoolData } = useAuth();
 
-  const [faculty, setFaculty] = useState<Faculty | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchFaculty = async () => {
-    try {
-      const res = await fetch(
-        `https://upasthiti-backend-production.up.railway.app/api/faculty/single?uid=${facultyId}`
-      );
-      const json = await res.json();
-        const data = json.data[0];
-        console.log(data);
-      setFaculty(json.data);
-    } catch (err) {
-      console.error("Failed to fetch faculty:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const [facultyData, setFacultyData] = useState<Faculty | null>(null);
   useEffect(() => {
-    fetchFaculty();
+    fetchFacultyData();
   }, []);
 
-  if (loading) {
-    return (
-      <div
-        className={`min-h-screen flex items-center justify-center ${
-          theme === "dark" ? "bg-gray-900 text-gray-300" : "bg-gray-50"
-        }`}
-      >
-        Loading faculty details...
-      </div>
-    );
+  async function fetchFacultyData() {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/faculty?uid=${params.facultyId}`
+      );
+      const data = res.data;
+      setFacultyData(data.data);
+      console.log(data.data);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  if (!faculty) {
-    return (
-      <div
-        className={`min-h-screen flex flex-col items-center justify-center text-center p-6 ${
-          theme === "dark" ? "bg-gray-900 text-gray-400" : "bg-gray-50"
-        }`}
-      >
-        <h2 className="text-2xl font-semibold mb-2">Faculty Not Found</h2>
-        <p>The requested faculty member does not exist.</p>
+  const [settings, setSettings] = useState<Settings>({
+    appearance: {
+      theme: "light",
+    },
+    privacy: {
+      showEmail: true,
+      showPhone: false,
+    },
+  });
 
-        <button
-          onClick={() => router.back()}
-          className={`mt-6 px-6 py-3 rounded-xl ${
-            theme === "dark"
-              ? "bg-red-600 hover:bg-red-700 text-white"
-              : "bg-red-500 hover:bg-red-600 text-white"
-          }`}
-        >
-          Go Back
-        </button>
-      </div>
-    );
-  }
+  const { theme, setTheme } = useTheme();
+  useEffect(() => {
+    const saved = localStorage.getItem("appSettings");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setSettings(parsed);
+    }
+  }, []);
 
   return (
     <div
-      className={`min-h-screen p-5 md:p-10 ${
-        theme === "dark" ? "bg-gray-900" : "bg-gray-50"
+      className={`min-h-screen p-2 md:p-8 transition-colors ${
+        theme == "dark" ? "bg-gray-900" : "bg-gray-50"
       }`}
     >
-      <div className="max-w-5xl mx-auto">
-        {/* Back Button */}
-        <button
-          onClick={() => router.push("/admin/faculty")}
-          className={`flex items-center gap-2 mb-6 text-sm px-4 py-2 rounded-lg border ${
-            theme === "dark"
-              ? "border-gray-700 text-gray-300 hover:bg-gray-800"
-              : "border-gray-300 text-gray-700 hover:bg-gray-100"
-          }`}
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Faculty
-        </button>
-
-        {/* Profile Header */}
-        <div
-          className={`rounded-2xl p-8 shadow-xl ${
-            theme === "dark" ? "bg-gray-800" : "bg-white"
-          }`}
-        >
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1
-                className={`text-3xl font-bold ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
-              >
-                {faculty.name}
-              </h1>
-
-              <p
-                className={`mt-1 text-sm ${
-                  theme === "dark" ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                Faculty ID: {faculty.facultyId}
-              </p>
-            </div>
-
-            <span
-              className={`
-                mt-4 md:mt-0 text-xs font-medium px-4 py-2 rounded-full
-                ${
-                  theme === "dark"
-                    ? "bg-red-600 text-white"
-                    : "bg-red-100 text-red-700"
-                }
-              `}
-            >
-              {faculty.type || "Faculty"}
-            </span>
-          </div>
-
-          {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-            <DetailCard
-              theme={theme}
-              icon={<Mail className="w-5 h-5" />}
-              label="Email"
-              value={faculty.email}
-            />
-
-            <DetailCard
-              theme={theme}
-              icon={<Phone className="w-5 h-5" />}
-              label="Phone"
-              value={faculty.phone}
-            />
-
-            <DetailCard
-              theme={theme}
-              icon={<BookOpen className="w-5 h-5" />}
-              label="Department"
-              value={faculty.departmentId}
-            />
-
-            <DetailCard
-              theme={theme}
-              icon={<UserCheck className="w-5 h-5" />}
-              label="UID"
-              value={faculty.uid}
-            />
-          </div>
-
-          {/* Subjects
-          <div
-            className={`mt-12 p-6 rounded-xl ${
-              theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1
+            className={`text-3xl font-bold transition-colors ${
+              theme == "dark" ? "text-white" : "text-gray-900"
             }`}
           >
-            <h2
-              className={`text-xl font-semibold ${
-                theme === "dark" ? "text-white" : "text-gray-900"
+            Faculty Details
+          </h1>
+          <p
+            className={`mt-1 transition-colors ${
+              theme == "dark" ? "text-gray-400" : "text-gray-600"
+            }`}
+          >
+            View and manage your faculty's information
+          </p>
+        </div>
+
+        {facultyData ? (
+          <>
+            <div
+              className={`rounded-3xl shadow-sm overflow-hidden mb-6 transition-colors ${
+                theme == "dark"
+                  ? "bg-gray-800 border-2 border-gray-700"
+                  : "bg-white border-2 border-gray-200"
               }`}
             >
-              Subjects Taught
-            </h2>
+              <div
+                className={`h-32 transition-colors ${
+                  theme == "dark"
+                    ? "bg-gradient-to-r from-red-800 to-red-800"
+                    : "bg-gradient-to-r from-red-500 to-red-600"
+                }`}
+              ></div>
 
-            <div className="mt-4 flex flex-wrap gap-3">
-              {faculty.subjects
-                .split(",")
-                .map((sub) => sub.trim())
-                .filter(Boolean)
-                .map((subject) => (
-                  <span
-                    key={subject}
-                    className={`px-4 py-2 rounded-lg text-sm ${
-                      theme === "dark"
-                        ? "bg-gray-800 text-gray-200"
-                        : "bg-white shadow text-gray-700"
+              <div className="px-8 pb-8">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 -mt-16 mb-8">
+                  <div className="relative">
+                    <div className="relative w-32 h-32">
+                      {facultyData.profilePicture ? (
+                        <Image
+                          src={facultyData.profilePicture}
+                          alt="Profile"
+                          fill
+                          className={`rounded-full object-cover shadow-lg transition-colors ${
+                            theme == "dark"
+                              ? "border-4 border-gray-800"
+                              : "border-4 border-white"
+                          }`}
+                        />
+                      ) : (
+                        <div
+                          className={`w-full h-full rounded-full flex items-center justify-center text-4xl font-bold shadow-lg transition-colors ${
+                            theme == "dark"
+                              ? "bg-red-600 text-white border-4 border-gray-800"
+                              : "bg-red-500 text-white border-4 border-white"
+                          }`}
+                        >
+                          {facultyData.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex-1 text-center sm:text-left mt-16 sm:mt-20">
+                    <h2
+                      className={`text-2xl font-bold transition-colors ${
+                        theme == "dark" ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      {facultyData.name}
+                    </h2>
+                    <p
+                      className={`mt-1 transition-colors ${
+                        theme == "dark" ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
+                      {schoolData.name}
+                    </p>
+                    <div
+                      className={`inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-lg transition-colors ${
+                        theme == "dark"
+                          ? "bg-red-900/30 border border-red-700"
+                          : "bg-red-50 border border-red-200"
+                      }`}
+                    >
+                      <UserPen
+                        className={`w-4 h-4 ${
+                          theme == "dark" ? "text-red-400" : "text-red-600"
+                        }`}
+                      />
+                      <span
+                        className={`text-sm font-semibold ${
+                          theme == "dark" ? "text-red-400" : "text-red-600"
+                        }`}
+                      >
+                        {facultyData.type}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div
+                    className={`rounded-xl p-5 transition-colors ${
+                      theme == "dark"
+                        ? "bg-gray-900/50 border-2 border-gray-700"
+                        : "bg-gray-50 border-2 border-gray-200"
                     }`}
                   >
-                    {subject}
-                  </span>
-                ))}
-            </div>
-          </div> */}
+                    <div className="flex items-center gap-3 mb-2">
+                      <div
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+                          theme == "dark" ? "bg-red-900/40" : "bg-red-100"
+                        }`}
+                      >
+                        <CreditCard
+                          className={`w-5 h-5 ${
+                            theme == "dark" ? "text-red-400" : "text-red-600"
+                          }`}
+                        />
+                      </div>
+                      <div>
+                        <p
+                          className={`text-xs font-medium uppercase transition-colors ${
+                            theme == "dark" ? "text-gray-500" : "text-gray-500"
+                          }`}
+                        >
+                          Faculty ID
+                        </p>
+                        <p
+                          className={`text-base font-semibold transition-colors ${
+                            theme == "dark" ? "text-white" : "text-gray-900"
+                          }`}
+                        >
+                          {facultyData.facultyId}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-          {/* Timetable */}
-          {faculty.timetable && (
+                  <div
+                    className={`rounded-xl p-5 transition-colors ${
+                      theme == "dark"
+                        ? "bg-gray-900/50 border-2 border-gray-700"
+                        : "bg-gray-50 border-2 border-gray-200"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+                          theme == "dark" ? "bg-blue-900/40" : "bg-blue-100"
+                        }`}
+                      >
+                        <Building2
+                          className={`w-5 h-5 ${
+                            theme == "dark" ? "text-blue-400" : "text-blue-600"
+                          }`}
+                        />
+                      </div>
+                      <div>
+                        <p
+                          className={`text-xs font-medium uppercase transition-colors ${
+                            theme == "dark" ? "text-gray-500" : "text-gray-500"
+                          }`}
+                        >
+                          School ID
+                        </p>
+                        <p
+                          className={`text-base font-semibold transition-colors ${
+                            theme == "dark" ? "text-white" : "text-gray-900"
+                          }`}
+                        >
+                          {facultyData.schoolId}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`rounded-xl p-5 transition-colors ${
+                      theme == "dark"
+                        ? "bg-gray-900/50 border-2 border-gray-700"
+                        : "bg-gray-50 border-2 border-gray-200"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+                          theme == "dark" ? "bg-green-900/40" : "bg-green-100"
+                        }`}
+                      >
+                        <Mail
+                          className={`w-5 h-5 ${
+                            theme == "dark"
+                              ? "text-green-400"
+                              : "text-green-600"
+                          }`}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className={`text-xs font-medium uppercase transition-colors ${
+                            theme == "dark" ? "text-gray-500" : "text-gray-500"
+                          }`}
+                        >
+                          Official Email
+                        </p>
+                        <p
+                          className={`text-base font-semibold truncate transition-colors ${
+                            theme == "dark" ? "text-white" : "text-gray-900"
+                          }`}
+                        >
+                          {settings.privacy.showEmail
+                            ? facultyData.officialEmail
+                            : "•••••"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`rounded-xl p-5 transition-colors ${
+                      theme == "dark"
+                        ? "bg-gray-900/50 border-2 border-gray-700"
+                        : "bg-gray-50 border-2 border-gray-200"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+                          theme == "dark" ? "bg-purple-900/40" : "bg-purple-100"
+                        }`}
+                      >
+                        <Phone
+                          className={`w-5 h-5 ${
+                            theme == "dark"
+                              ? "text-purple-400"
+                              : "text-purple-600"
+                          }`}
+                        />
+                      </div>
+                      <div>
+                        <p
+                          className={`text-xs font-medium uppercase transition-colors ${
+                            theme == "dark" ? "text-gray-500" : "text-gray-500"
+                          }`}
+                        >
+                          Phone Number
+                        </p>
+                        <p
+                          className={`text-base font-semibold transition-colors ${
+                            theme == "dark" ? "text-white" : "text-gray-900"
+                          }`}
+                        >
+                          {settings.privacy.showPhone
+                            ? facultyData.phone
+                            : "•••••"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div
-              className={`mt-10 p-6 rounded-xl border ${
-                theme === "dark"
-                  ? "bg-gray-700 border-gray-600"
-                  : "bg-gray-100 border-gray-200"
+              className={`rounded-3xl shadow-sm p-6 transition-colors ${
+                theme == "dark"
+                  ? "bg-gray-800 border-2 border-gray-700"
+                  : "bg-white border-2 border-gray-200"
               }`}
             >
-              <h2
-                className={`text-xl font-semibold flex items-center gap-2 ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
+              <h3
+                className={`text-xl font-bold mb-4 transition-colors ${
+                  theme == "dark" ? "text-white" : "text-gray-900"
                 }`}
               >
-                <FileText className="w-5 h-5" /> Timetable
-              </h2>
-
-              <p className="text-sm mt-3 opacity-70">
-                Faculty timetable file uploaded.
-              </p>
-
-              <a
-                href={faculty.timetable}
-                target="_blank"
-                className={`mt-4 inline-block px-5 py-2 rounded-lg ${
-                  theme === "dark"
-                    ? "bg-red-600 hover:bg-red-700 text-white"
-                    : "bg-red-500 hover:bg-red-600 text-white"
+                School Information
+              </h3>
+              <div
+                className={`rounded-xl p-6 transition-colors ${
+                  theme == "dark"
+                    ? "bg-gradient-to-br from-red-900/30 to-orange-900/30 border-2 border-red-800"
+                    : "bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200"
                 }`}
               >
-                View / Download Timetable
-              </a>
+                <div className="flex items-start gap-4">
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+                      theme == "dark" ? "bg-red-600" : "bg-red-500"
+                    }`}
+                  >
+                    <Building2 className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p
+                      className={`text-sm mb-1 transition-colors ${
+                        theme == "dark" ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
+                      Affiliated School
+                    </p>
+                    <p
+                      className={`text-lg font-bold transition-colors ${
+                        theme == "dark" ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      {schoolData.name}
+                    </p>
+                    <p
+                      className={`text-sm mt-2 transition-colors ${
+                        theme == "dark" ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
+                      ID: {facultyData.schoolId}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
-
-          {/* Bottom Actions */}
-          <div className="flex gap-4 mt-12">
-            <button
-              className={`px-6 py-3 rounded-xl ${
-                theme === "dark"
-                  ? "bg-blue-600 hover:bg-blue-700 text-white"
-                  : "bg-blue-500 hover:bg-blue-600 text-white"
+          </>
+        ) : (
+          <div
+            className={`rounded-3xl shadow-sm overflow-hidden transition-colors ${
+              theme == "dark"
+                ? "bg-gray-800 border-2 border-gray-700"
+                : "bg-white border-2 border-gray-200"
+            }`}
+          >
+            <div
+              className={`h-32 animate-pulse ${
+                theme == "dark" ? "bg-gray-700" : "bg-gray-300"
               }`}
-            >
-              Edit Faculty
-            </button>
-
-            <button
-              className={`px-6 py-3 rounded-xl ${
-                theme === "dark"
-                  ? "bg-red-600 hover:bg-red-700 text-white"
-                  : "bg-red-500 hover:bg-red-600 text-white"
-              }`}
-            >
-              Delete Faculty
-            </button>
+            ></div>
+            <div className="px-8 pb-8">
+              <div className="flex items-start gap-6 -mt-16 mb-8">
+                <div
+                  className={`w-32 h-32 rounded-full animate-pulse ${
+                    theme == "dark"
+                      ? "bg-gray-700 border-4 border-gray-800"
+                      : "bg-gray-300 border-4 border-white"
+                  }`}
+                ></div>
+                <div className="flex-1 mt-20">
+                  <div
+                    className={`h-8 rounded w-1/2 mb-2 animate-pulse ${
+                      theme == "dark" ? "bg-gray-700" : "bg-gray-300"
+                    }`}
+                  ></div>
+                  <div
+                    className={`h-5 rounded w-1/3 animate-pulse ${
+                      theme == "dark" ? "bg-gray-700" : "bg-gray-200"
+                    }`}
+                  ></div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className={`rounded-xl p-5 transition-colors ${
+                      theme == "dark"
+                        ? "bg-gray-900/50 border-2 border-gray-700"
+                        : "bg-gray-50 border-2 border-gray-200"
+                    }`}
+                  >
+                    <div
+                      className={`h-16 rounded animate-pulse ${
+                        theme == "dark" ? "bg-gray-700" : "bg-gray-200"
+                      }`}
+                    ></div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+        )}
 
-function DetailCard({
-  theme,
-  icon,
-  label,
-  value,
-}: {
-  theme: string;
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div
-      className={`p-5 rounded-xl border ${
-        theme === "dark"
-          ? "bg-gray-700 border-gray-600"
-          : "bg-gray-100 border-gray-200"
-      }`}
-    >
-      <div className="flex items-center gap-3">
-        {icon}
-        <div>
-          <p
-            className={`text-sm ${
-              theme === "dark" ? "text-gray-400" : "text-gray-600"
-            }`}
-          >
-            {label}
-          </p>
-          <h3
-            className={`text-lg font-semibold ${
-              theme === "dark" ? "text-white" : "text-gray-900"
-            }`}
-          >
-            {value}
-          </h3>
-        </div>
+        <Footer />
       </div>
     </div>
   );

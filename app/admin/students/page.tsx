@@ -57,7 +57,7 @@ export default function Students() {
   const fetchStudents = async () => {
     try {
       const res = await fetch(
-        "https://upasthiti-backend-production.up.railway.app/api/student/all"
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/student/all`
       );
       const json = await res.json();
       setStudents(json.data);

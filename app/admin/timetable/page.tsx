@@ -28,7 +28,7 @@ export default function TimeTable() {
   const fetchTimetable = async () => {
     try {
       const res = await fetch(
-        "https://upasthiti-backend-production.up.railway.app/api/admin/timetables"
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/admin/timetables`
       );
       const data = await res.json();
       setTimetables(data.data || []);
@@ -44,7 +44,7 @@ export default function TimeTable() {
     formData.append("validUntil", "2028-01-01");
 
     const res = await fetch(
-      "https://upasthiti-backend-production.up.railway.app/api/admin/timetables/upload",
+      `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/admin/timetables/upload`,
       {
         method: "POST",
         body: formData,

@@ -29,7 +29,7 @@ export default function SingleStudent() {
   const fetchStudent = async () => {
     try {
       const res = await fetch(
-        `https://upasthiti-backend-production.up.railway.app/api/student?uid=${studentId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/student?uid=${studentId}`
       );
       const json = await res.json();
       setStudent(json.data);

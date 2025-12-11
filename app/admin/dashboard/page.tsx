@@ -92,7 +92,7 @@ export default function Dashboard() {
   const getCount = async () => {
     try {
       const res = await axios.get(
-        "https://upasthiti-backend-production.up.railway.app/api/count"
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/count`
       );
       const data = res.data;
 
@@ -164,7 +164,7 @@ export default function Dashboard() {
       const imageUrl = data.secure_url;
 
       await axios.patch(
-        "https://upasthiti-backend-production.up.railway.app/api/admin/update",
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/admin/update`,
         {
           uid: user.uid,
           updates: { profilePicture: imageUrl },

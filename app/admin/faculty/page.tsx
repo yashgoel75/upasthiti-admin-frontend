@@ -81,7 +81,7 @@ export default function Faculty() {
   const fetchTeacher = async (): Promise<void> => {
     try {
       const res = await fetch(
-        "https://upasthiti-backend-production.up.railway.app/api/faculty"
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/faculty/all`
       );
       console.log(res);
       const data = await res.json();
@@ -135,7 +135,7 @@ export default function Faculty() {
       formData.append("csvFile", file);
 
       const res = await axios.post(
-        `https://upasthiti-backend-production.up.railway.app/api/admin/faculties/upload`,
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/admin/faculties/upload`,
         formData,
         {
           headers: {
