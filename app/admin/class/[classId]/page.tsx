@@ -5,11 +5,15 @@ import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { useTheme } from "@/app/context/theme";
 import {
+  ArrowLeft,
   Phone,
   Mail,
+  BookOpen,
+  Hash,
   IdCard,
   Building2,
   Landmark,
+  UserPen,
   School,
 } from "lucide-react";
 import Footer from "@/app/components/footer/page";
@@ -84,7 +88,7 @@ export default function SingleStudent() {
               theme == "dark" ? "text-white" : "text-gray-900"
             }`}
           >
-            Student Details
+            Class Details
           </h1>
           <p
             className={`mt-1 transition-colors ${

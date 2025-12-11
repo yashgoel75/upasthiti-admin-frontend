@@ -7,17 +7,7 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useRouter } from "next/navigation";
-
-interface Student {
-  _id: string;
-  name: string;
-  email: string;
-  phone: string;
-  branch: string;
-  batchEnd: string;
-  enrollmentNo: string;
-  uid: string;
-}
+import { Student } from "@/app/constants/interface";
 
 interface GroupedStudents {
   [key: string]: Student[];

@@ -10,19 +10,7 @@ import { Search, Bell, Camera } from "lucide-react";
 import Footer from "@/app/components/footer/page";
 import { useAuth } from "../..//context/auth";
 import { useTheme } from "@/app/context/theme";
-
-interface Admin {
-  adminId: string;
-  name: string;
-  profilePicture?: string;
-  officialEmail: string;
-  phoneNumber: number;
-  uid: string;
-  schoolId: string;
-  school: {
-    name: string;
-  };
-}
+import { Admin } from "@/app/constants/interface";
 
 interface School {
   name: string;

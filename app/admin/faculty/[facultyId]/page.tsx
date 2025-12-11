@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import axios from "axios";
 import {
@@ -20,6 +20,8 @@ import { useTheme } from "@/app/context/theme";
 import Footer from "@/app/components/footer/page";
 import { useParams } from "next/navigation";
 
+import { departmentMap } from "@/app/constants/branch";
+import { Faculty } from "@/app/constants/interface";
 interface Settings {
   appearance: {
     theme: string;
@@ -30,32 +32,7 @@ interface Settings {
   };
 }
 
-interface Faculty {
-  _id: string;
-  name: string;
-  officialEmail: string;
-  phone: string;
-  departmentId: string;
-  subjects: string;
-  timetable: string;
-  type: string;
-  uid: string;
-  facultyId: string;
-  schoolId: string;
-  profilePicture: string;
-}
-
 export default function FacultyPage() {
-  const departmentMap: Record<string, string> = {
-    "DEPT-CSE": "Computer Science & Engineering",
-    "DEPT-APSCI": "Applied Science",
-    "DEPT-IT": "Information Technology",
-    "DEPT-ECE": "Electronics",
-    "DEPT-MECH": "Mechanical Engineering",
-    "DEPT-CIVIL": "Civil Engineering",
-    "DEPT-EEE": "Electrical & Electronics",
-  };
-
   const params = useParams();
   const { schoolData } = useAuth();
   const [facultyData, setFacultyData] = useState<Faculty | null>(null);
@@ -65,7 +42,9 @@ export default function FacultyPage() {
   }, []);
 
   const [isTimeTableOpen, setIsTimeTableOpen] = useState(false);
+  const [timeTableLoading, setTimeTableLoading] = useState(false);
   const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);
+  const [subjectLoading, setSubjectLoading] = useState(false);
 
   async function fetchFacultyData() {
     try {
@@ -89,9 +68,11 @@ export default function FacultyPage() {
 
   async function fetchSubjects() {
     try {
+      setSubjectLoading(true);
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/faculty/subjects?facultyId=${facultyData?.facultyId}`
       );
+      setSubjectLoading(false);
       setSubjects(res.data.subjectsBySemester);
     } catch (error) {
       console.error(error);
@@ -123,9 +104,11 @@ export default function FacultyPage() {
 
   async function fetchTimetable() {
     try {
+      setTimeTableLoading(true);
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/faculty/schedule?facultyId=${facultyData?.facultyId}`
       );
+      setTimeTableLoading(false);
       setTimetable(res.data.schedule);
     } catch (err) {
       console.error(err);
@@ -158,7 +141,7 @@ export default function FacultyPage() {
     },
   });
 
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   useEffect(() => {
     const saved = localStorage.getItem("appSettings");
     if (saved) {
@@ -386,9 +369,7 @@ export default function FacultyPage() {
                             theme == "dark" ? "text-white" : "text-gray-900"
                           }`}
                         >
-                          {settings.privacy.showEmail
-                            ? facultyData.officialEmail
-                            : "•••••"}
+                          {facultyData.officialEmail}
                         </p>
                       </div>
                     </div>
@@ -428,9 +409,7 @@ export default function FacultyPage() {
                             theme == "dark" ? "text-white" : "text-gray-900"
                           }`}
                         >
-                          {settings.privacy.showPhone
-                            ? facultyData.phone
-                            : "•••••"}
+                          {facultyData.phone}
                         </p>
                       </div>
                     </div>
@@ -582,7 +561,8 @@ export default function FacultyPage() {
                     )}
                   </div>
                 </div>
-                {isTimeTableOpen && (
+
+                {isTimeTableOpen && !timeTableLoading && (
                   <div
                     className={`mt-4 rounded-xl overflow-x-auto ${
                       theme === "dark" ? "bg-gray-900/40" : "bg-white"
@@ -667,6 +647,19 @@ export default function FacultyPage() {
                     </table>
                   </div>
                 )}
+
+                {isTimeTableOpen && timeTableLoading && (
+                  <>
+                    <div className="animate-pulse space-y-2 flex-1">
+                      <div className="h-10 bg-gray-200 rounded-lg"></div>
+                      <div className="h-10 bg-gray-200 rounded-lg"></div>
+                      <div className="h-10 bg-gray-200 rounded-lg"></div>
+                      <div className="h-10 bg-gray-200 rounded-lg"></div>
+                      <div className="h-10 bg-gray-200 rounded-lg"></div>
+                      <div className="h-10 bg-gray-200 rounded-lg"></div>
+                    </div>
+                  </>
+                )}
               </div>
               <div
                 onClick={() => {
@@ -704,7 +697,7 @@ export default function FacultyPage() {
                     )}
                   </div>
                 </div>
-                {isSubjectsOpen && (
+                {isSubjectsOpen && !subjectLoading && (
                   <div className="mt-4 space-y-6">
                     {Object.keys(subjects).map((sem) => (
                       <div key={sem}>
@@ -741,6 +734,16 @@ export default function FacultyPage() {
                       </div>
                     ))}
                   </div>
+                )}
+
+                {isSubjectsOpen && subjectLoading && (
+                  <>
+                    <div className="mt-4 space-y-6 animate-pulse">
+                      <div className="text-lg h-10 w-40 bg-gray-200 rounded-lg font-bold mb-3"></div>
+                      <div className="text-lg h-18 bg-gray-200 rounded-lg font-bold mb-3"></div>
+                      <div className="text-lg h-18 bg-gray-200 rounded-lg font-bold mb-3"></div>
+                    </div>
+                  </>
                 )}
               </div>
             </div>

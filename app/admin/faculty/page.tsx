@@ -5,19 +5,7 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useRouter } from "next/navigation";
-
-interface Faculty {
-  _id: string;
-  name: string;
-  email: string;
-  phone: string;
-  departmentId: string;
-  subjects: string;
-  timetable: string;
-  type: string;
-  uid: string;
-  facultyId: string;
-}
+import type { Faculty } from "@/app/constants/interface";
 
 interface GroupedTeachers {
   [key: string]: Faculty[];
@@ -257,7 +245,7 @@ export default function Faculty() {
               ${theme === "dark" ? "text-gray-200" : "text-gray-800"}
             `}
             >
-              {teacher.email}
+              {teacher.officialEmail}
             </p>
           </div>
         </div>
