@@ -634,6 +634,9 @@ export default function FacultyPage() {
                                       <p className="opacity-80">
                                         {cell.classId}
                                       </p>
+                                      <p className="opacity-80">
+                                        Semester {cell.semester}
+                                      </p>
                                     </div>
                                   ) : (
                                     <span className="opacity-30">—</span>
